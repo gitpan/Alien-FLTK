@@ -1,0 +1,24 @@
+Version 0.068410 | 2009-08-22 07:10:42Z (Sat, 22 Aug 2009) | ecfdb18
+    API Changes/Compatibility Information:
+     * It actually exists
+
+     Resolved Issues/Bug Fixes:
+     * ...see above
+
+    Internal/Behavioral Changes:
+     * ...see above
+
+    Documentation/Sample Code/Test Suite:
+     * ...see above
+
+    Notes:
+     * Meanwhile...
+         - ...stuff is going on.
+
+_ -.-. .... .- -. --. . ... _________________________________________
+For more information, see the commit log:
+    http://github.com/sanko/alien-fltk/commits/master
+
+$Ver: 0.06841 $ from git $Rev: b81cee7 $
+$Date: 2009-08-22 06:20:12Z (Sat, 22 Aug 2009) $
+$Url: http://github.com/sanko/alien-fltk//raw/b81cee795020d15ebf9e4b657e3aa60468cc4028/Changes $

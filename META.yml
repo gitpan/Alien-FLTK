@@ -1,0 +1,67 @@
+---
+name: Alien-FLTK
+version: 0.06841
+author:
+  - 'Sanko Robinson <sanko@cpan.org>'
+abstract: Installs libraries for the (experimental) 2.0.x branch of the FLTK GUI toolkit
+license: artistic_2
+resources:
+  ChangeLog: http://github.com/sanko/alien-fltk/commits/master
+  bugtracker: http://github.com/sanko/alien-fltk/issues
+  homepage: http://sankorobinson.com/fltk/
+  license: http://www.perlfoundation.org/artistic_license_2_0
+  repository: http://github.com/sanko/alien-fltk/
+requires:
+  Archive::Extract: 0
+  Carp: 0
+  Config: 0
+  Cwd: 0
+  File::Basename: 0
+  File::Fetch: 0
+  File::Find: 0
+  File::Path: 2.07
+  File::Spec: 0
+  File::Temp: 0
+  Module::Build: 0.3
+  Test::More: 0.88
+  base: 0
+  perl: 5.8.0
+build_requires:
+  Archive::Extract: 0
+  Carp: 0
+  Config: 0
+  Cwd: 0
+  File::Basename: 0
+  File::Fetch: 0
+  File::Find: 0
+  File::Path: 2.07
+  File::Spec: 0
+  File::Temp: 0
+  Module::Build: 0.3
+  Test::More: 0.88
+  base: 0
+  perl: 5.8.0
+provides:
+  Alien::FLTK:
+    file: lib/Alien/FLTK.pm
+    version: 0.06841
+no_index:
+  directory:
+    - examples
+    - inc
+generated_by: 'Conversion, software version 7.0'
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+keywords:
+  - Alien
+  - FLTK
+  - Fast
+  - Light
+  - Toolkit
+  - widget
+  - FL
+  - GUI
+  - UI
+  - window
+  - 2.0.x
