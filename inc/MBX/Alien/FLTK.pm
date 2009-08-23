@@ -9,7 +9,7 @@ package MBX::Alien::FLTK;
     use File::Find qw[find];
     use Carp qw[carp];
     use base 'Module::Build';
-    use lib qw[inc ..];
+    use lib qw[inc .. ../..];
     use MBX::Alien::FLTK::Utility qw[_o _a _dir _file _exe];
 
     sub new {
@@ -176,7 +176,29 @@ Your system/compiler combination may not be supported. Using defaults.
                 last MIRROR if $path;
             }
         }
-        die 'Unable to fetch archive' unless $path;
+        if (!$path) {
+            printf <<'END', $self->notes('fltk_svn'), $dest;
+ --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+       ERROR: We failed to fetch fltk-2.0.x-r%s.tar.gz and will exit.
+
+  If this problem persists, you may download the archive yourself and put
+  it in the ./%s/ directory. Alien::FLTK will attempt to extract and build
+  the libs from there.
+
+  Use any of these mirrors:
+
+END
+            for my $mirror (keys %mirrors) {
+                print " " x 4 . $mirrors{$mirror} . "\n";
+                for my $prot (qw[ftp http]) {
+                    printf
+                        "      %s://%s/pub/fltk/snapshots/fltk-2.0.x-r%s.tar.gz\n",
+                        $prot, $mirror, $self->notes('fltk_svn');
+                }
+            }
+            print ' ---' x 19;
+            exit 0;    # Clean exit
+        }
         return $path;
     }
 
@@ -386,6 +408,29 @@ Your system/compiler combination may not be supported. Using defaults.
     }
     1;
 }
-__END__
 
-$Id: FLTK.pm b07aa6c 2009-08-22 05:23:41Z sanko@cpan.org $
+=pod
+
+=head1 Author
+
+Sanko Robinson <sanko@cpan.org> - http://sankorobinson.com/
+
+CPAN ID: SANKO
+
+=head1 License and Legal
+
+Copyright (C) 2009 by Sanko Robinson E<lt>sanko@cpan.orgE<gt>
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of The Artistic License 2.0. See the F<LICENSE> file included with
+this distribution or http://www.perlfoundation.org/artistic_license_2_0.  For
+clarification, see http://www.perlfoundation.org/artistic_2_0_notes.
+
+When separated from the distribution, all POD documentation is covered by the
+Creative Commons Attribution-Share Alike 3.0 License. See
+http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
+clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
+
+=for git $Id: FLTK.pm 04ade31 2009-08-22 18:09:14Z sanko@cpan.org $
+
+=cut

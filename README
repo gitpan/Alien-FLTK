@@ -1,3 +1,4 @@
+NAME
     Alien::FLTK - Build and use the Fast Light Toolkit binaries
 
 Description
@@ -57,11 +58,10 @@ Methods
   "cxxflags"
         my $cxxflags = Alien::FLTK->cxxflags;
 
-    Returns additional C++ compiler flags to be used. to compile C++ using
-    FLTK
+    Returns additional flags to be used to when compiling C++ using FLTK.
 
-  "cxxflags"
-        my $cxxflags = Alien::FLTK->ldflags(qw[gl images]);
+  "ldflags"
+        my $ldflags = Alien::FLTK->ldflags(qw[gl images]);
 
     Returns additional linker flags to be used. This method can
     automatically add appropriate flags based on how you plan on linking to
@@ -82,7 +82,7 @@ Methods
         Include flags to use extra image formats (PNG, JPEG).
 
   "revision"
-        my $revision = Alien::wxWidgets->revision;
+        my $revision = Alien::FLTK->revision;
 
     Returns the SVN revision number of the source "Alien::FLTK" was built
     with.
@@ -120,25 +120,17 @@ Notes
 
         http://github.com/sanko/alien-fltk/ and you are invited to fork it.
 
-  Dependencies
-    File::Spec::Functions
-    Module::Build
-    ExtUtils::CBuilder
-
   Installation
-    This distribution requires a functioning C++ compiler and (to make life
-    easy) a version of make.
+    Building the fltk2 libs requires a functioning C++ compiler, bash, and
+    (to make life easy) a version of make.
 
-    The distribution is based on Module::Build and ExtUtils::CBuilder, so
-    use the following procedure:
+    The distribution is based on Module::Build, so use the following
+    procedure:
 
       perl Build.PL
       ./Build
       ./Build test
       ./Build install
-
-Acknowledgments
-    The FLTK Team - http://www.fltk.org/
 
 Author
     Sanko Robinson <sanko@cpan.org> - http://sankorobinson.com/
@@ -161,3 +153,5 @@ License and Legal
 
     "Alien::FLTK" is based in part on the work of the FLTK project. See
     http://www.fltk.org/.
+
+$Id: README d738bfa 2009-08-22 17:33:24Z sanko@cpan.org $

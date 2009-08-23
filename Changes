@@ -1,3 +1,12 @@
+Version 0.0XX | Distant future | f74d9c0
+    Internal/Behavioral Changes:
+     * Alternatives are presented when we fail to download fltk's source due
+       to some connectivity problem (firewall, etc.)
+
+    Documentation/Sample Code/Test Suite:
+     * ldflags was mislabeled in POD
+     * License info added to various files
+
 Version 0.068410 | 2009-08-22 07:10:42Z (Sat, 22 Aug 2009) | ecfdb18
     API Changes/Compatibility Information:
      * It actually exists
@@ -19,6 +28,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06841 $ from git $Rev: b81cee7 $
-$Date: 2009-08-22 06:20:12Z (Sat, 22 Aug 2009) $
-$Url: http://github.com/sanko/alien-fltk//raw/b81cee795020d15ebf9e4b657e3aa60468cc4028/Changes $
+$Ver: 0.06841_002 $ from git $Rev: 3e077ad $
+$Date: 2009-08-22 23:37:36Z (Sat, 22 Aug 2009) $
+$Url: http://github.com/sanko/alien-fltk//raw/3e077add4d2307e1327ec228fea5746d8ddafc57/Changes $
