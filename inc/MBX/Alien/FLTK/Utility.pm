@@ -83,7 +83,6 @@ package MBX::Alien::FLTK::Utility;
                             $Config{'libpth'}, 'lib' . shift() . $Config{'_a'}
                         )
         );
-        die $file;
         my $found = 0;
         find(
             sub {    # XXX - Some platforms are touchy about case
@@ -119,6 +118,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Utility.pm 9d2e5ca 2009-08-22 17:11:35Z sanko@cpan.org $
+=for git $Id: Utility.pm 0851106 2009-08-26 02:37:39Z sanko@cpan.org $
 
 =cut

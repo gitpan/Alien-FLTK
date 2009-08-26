@@ -1,6 +1,6 @@
 ---
 name: Alien-FLTK
-version: 0.06841_002
+version: 0.06841_004
 author:
   - 'Sanko Robinson <sanko@cpan.org>'
 abstract: Installs libraries for the (experimental) 2.0.x branch of the FLTK GUI toolkit
@@ -11,21 +11,6 @@ resources:
   homepage: http://sanko.github.com/fltk-perl/
   license: http://www.perlfoundation.org/artistic_license_2_0
   repository: http://github.com/sanko/alien-fltk/
-requires:
-  Archive::Extract: 0
-  Carp: 0
-  Config: 0
-  Cwd: 0
-  File::Basename: 0
-  File::Fetch: 0
-  File::Find: 0
-  File::Path: 2.07
-  File::Spec: 0
-  File::Temp: 0
-  Module::Build: 0.3
-  Test::More: 0.88
-  base: 0
-  perl: 5.8.0
 build_requires:
   Archive::Extract: 0
   Carp: 0
@@ -40,18 +25,33 @@ build_requires:
   Module::Build: 0.3
   Test::More: 0.88
   base: 0
-  perl: 5.8.0
+  perl: v5.8.0
+requires:
+  Archive::Extract: 0
+  Carp: 0
+  Config: 0
+  Cwd: 0
+  File::Basename: 0
+  File::Fetch: 0
+  File::Find: 0
+  File::Path: 2.07
+  File::Spec: 0
+  File::Temp: 0
+  Module::Build: 0.3
+  Test::More: 0.88
+  base: 0
+  perl: v5.8.0
+configure_requires:
+  Module::Build: 0.34
 provides:
   Alien::FLTK:
     file: lib/Alien/FLTK.pm
-    version: 0.06841_002
+    version: 0.06841_004
 no_index:
   directory:
     - t
     - example
     - inc
-  file:
-    - Build.PL
 generated_by: 'Conversion, software version 7.0'
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

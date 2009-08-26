@@ -6,7 +6,7 @@ package Alien::FLTK;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
     use File::Basename;
     use File::Find qw[find];
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6841; our $UNSTABLE_RELEASE = 2; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6841; our $UNSTABLE_RELEASE = 4; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
 
     sub include_path {
@@ -46,18 +46,18 @@ package Alien::FLTK;
         my $LDLIBS = my $GLLIB = '';
         {
             local $_ = ($Config{'osname'} || $^O);
-            if (m[MSWin32]) {
+            if (m[MSWin32]i) {
                 $LDLIBS
                     = '-mwindows -lmsimg32 -lole32 -luuid -lcomctl32 -lwsock32 -lsupc++';
                 $GLLIB = "-lopengl32"
                     if _find_h('GL/gl.h');    # XXX only if use_gl
                 $GLLIB = "-lglu32 $GLLIB" if _find_h('GL/glu.h');
             }
-            elsif (m[MacOS]) {    # MacOS X uses Carbon for graphics...
+            elsif (m[darwin]i) {    # MacOS X uses Carbon for graphics...
                 $LDLIBS = '-framework Carbon -framework ApplicationServices';
                 $GLLIB  = '-framework AGL -framework OpenGL';
             }
-            else {                # All others are UNIX/X11...
+            else {                  # All others are UNIX/X11...
                 $LDLIBS
                     = '-lX11 -lXi -lXcursor -lpthread -lm -lXext -lsupc++';
                 if (_find_h('GL/gl.h')) {
@@ -364,6 +364,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<C<Alien::FLTK>|Alien::FLTK> is based in part on the work of the FLTK
 project. See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm d738bfa 2009-08-22 17:33:24Z sanko@cpan.org $
+=for git $Id: FLTK.pm decec0b 2009-08-26 02:43:29Z sanko@cpan.org $
 
 =cut

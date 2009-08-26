@@ -1,4 +1,16 @@
-Version 0.0XX | Distant future | f74d9c0
+Version 0.0XX | Distant future | decec0b
+
+     Resolved Issues/Bug Fixes:
+     * Attempt to find and use gmake on *BSD
+
+    Internal/Behavioral Changes:
+     * Use ExtUtils::CBuilder when testing if system can compile C++
+
+    Documentation/Sample Code/Test Suite:
+     * New GL example: example/0003_gl.pl
+
+Version 0.0XX | Distant future | ddfb492
+
     Internal/Behavioral Changes:
      * Alternatives are presented when we fail to download fltk's source due
        to some connectivity problem (firewall, etc.)
@@ -8,6 +20,7 @@ Version 0.0XX | Distant future | f74d9c0
      * License info added to various files
 
 Version 0.068410 | 2009-08-22 07:10:42Z (Sat, 22 Aug 2009) | ecfdb18
+
     API Changes/Compatibility Information:
      * It actually exists
 
@@ -28,6 +41,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06841_002 $ from git $Rev: 3e077ad $
-$Date: 2009-08-22 23:37:36Z (Sat, 22 Aug 2009) $
-$Url: http://github.com/sanko/alien-fltk//raw/3e077add4d2307e1327ec228fea5746d8ddafc57/Changes $
+$Ver: 0.06841_004 $ from git $Rev: b71cccf $
+$Date: 2009-08-26 02:11:00Z (Wed, 26 Aug 2009) $
+$Url: http://github.com/sanko/alien-fltk//raw/b71cccf50416add6a13760c3fba0d435bde90489/Changes $
