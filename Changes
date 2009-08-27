@@ -1,4 +1,4 @@
-Version 0.0XX | Distant future | decec0b
+Version 0.0XX | Distant future | 6d0f1be
 
      Resolved Issues/Bug Fixes:
      * Attempt to find and use gmake on *BSD
@@ -41,6 +41,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06841_004 $ from git $Rev: b71cccf $
+$Ver: 0.06841_008 $ from git $Rev: b71cccf $
 $Date: 2009-08-26 02:11:00Z (Wed, 26 Aug 2009) $
 $Url: http://github.com/sanko/alien-fltk//raw/b71cccf50416add6a13760c3fba0d435bde90489/Changes $

@@ -1,14 +1,23 @@
-package MBX::Alien::FLTK::Win32::MinGW;
+package MBX::Alien::FLTK::Platform::BSD;
 {
     use strict;
     use warnings;
-    use lib '../../..';
-    use base 'MBX::Alien::FLTK::Win32';
+    use Carp qw[];
+    use Config qw[%Config];
+    use lib qw[.. ../../../..];
+    use MBX::Alien::FLTK::Utility qw[_o _a _dir _rel _abs];
+    use base 'MBX::Alien::FLTK';
+    sub new { bless \$0, shift }
 
-    #
-    sub version { return qx[gcc -dumpversion]; }
+    sub build_fltk {    # TODO: Try $Config{'make'} second
+        my ($self, $build) = @_;
+        return MBX::Alien::FLTK::Utility::run(qw[gmake])
+            if MBX::Alien::FLTK::Utility::can_run('gmake');
+        print 'Failed to find GNUmake which is required for *BSD';
+        exit 0;
+    }
+    1;
 }
-1;
 
 =pod
 
@@ -32,6 +41,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: MinGW.pm 9d2e5ca 2009-08-22 17:11:35Z sanko@cpan.org $
+=for git $Id: BSD.pm 6022cb2 2009-08-27 01:04:28Z sanko@cpan.org $
 
 =cut

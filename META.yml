@@ -1,6 +1,6 @@
 ---
 name: Alien-FLTK
-version: 0.06841_004
+version: 0.06841_008
 author:
   - 'Sanko Robinson <sanko@cpan.org>'
 abstract: Installs libraries for the (experimental) 2.0.x branch of the FLTK GUI toolkit
@@ -46,7 +46,7 @@ configure_requires:
 provides:
   Alien::FLTK:
     file: lib/Alien/FLTK.pm
-    version: 0.06841_004
+    version: 0.06841_008
 no_index:
   directory:
     - t

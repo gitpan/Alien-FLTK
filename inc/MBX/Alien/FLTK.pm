@@ -31,7 +31,7 @@ package MBX::Alien::FLTK;
         my ($self, %args) = @_;
         my $OS = $args{'osname'} || $Config{'osname'} || $^O;
         my $CC = $args{'cc'}     || $Config{'ccname'} || $Config{'cc'};
-        my $type = sprintf 'MBX::Alien::FLTK::%s%s', $OS =~ m[Win32]
+        my $type = sprintf 'MBX::Alien::FLTK::Platform::%s%s', $OS =~ m[Win32]
             ? (
             'Win32',
             ($CC =~ m[gcc]i
@@ -42,9 +42,10 @@ package MBX::Alien::FLTK;
              : ''                                # Hope for the best
             )
             )
-            : $OS =~ m[MacOS]i ? ('MacOS', '')    # TODO
-            : $OS =~ m[BSD$]i  ? ('BSD',   '')    # requires GNUmake (gmake)
-            :                    ('Unix',  '');
+            : $OS =~ m[Darwin]i  ? ('Darwin',  '')  # Mac OSX
+            : $OS =~ m[BSD$]i    ? ('BSD',     '')  # requires GNUmake (gmake)
+            : $OS =~ m[Solaris]i ? ('Solaris', '')  # requires GNUmake (gmake)
+            :                      ('Unix',    '');
         my $compiler;
         eval "use $type;\$compiler = $type->new();";
         if ($@ || !$compiler) {
@@ -52,7 +53,7 @@ package MBX::Alien::FLTK;
 Your system/compiler combination may not be supported. Using defaults.
   Actual error message follows:
 
-            $compiler = $self;                    # Meh?
+            $compiler = $self;                      # Meh?
         }
         return $self->{'stash'}{'_compiler'} = $compiler;   # MB is hash based
     }
@@ -453,6 +454,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: FLTK.pm 0851106 2009-08-26 02:37:39Z sanko@cpan.org $
+=for git $Id: FLTK.pm 6022cb2 2009-08-27 01:04:28Z sanko@cpan.org $
 
 =cut

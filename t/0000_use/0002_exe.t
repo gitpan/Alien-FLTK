@@ -16,13 +16,6 @@ my $test_builder    = Test::More->builder;
 my $build           = Module::Build->current;
 my $release_testing = $build->config_data('release_testing');
 my $verbose         = $build->config_data('verbose');
-$SIG{__WARN__} = (
-    $verbose
-    ? sub {
-        diag(sprintf(q[%02.4f], Time::HiRes::time- $^T), q[ ], shift);
-        }
-    : sub { }
-);
 
 #
 my $mydir = dirname(rel2abs(__FILE__));
@@ -89,6 +82,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0002_exe.t 9d2e5ca 2009-08-22 17:11:35Z sanko@cpan.org $
+=for git $Id: 0002_exe.t b793f84 2009-08-27 01:05:48Z sanko@cpan.org $
 
 =cut

@@ -6,7 +6,7 @@ package Alien::FLTK;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
     use File::Basename;
     use File::Find qw[find];
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6841; our $UNSTABLE_RELEASE = 4; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6841; our $UNSTABLE_RELEASE = 8; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
 
     sub include_path {
@@ -41,7 +41,7 @@ package Alien::FLTK;
         return $CXXFLAGS;
     }
 
-    sub ldflags {
+    sub ldflags {    # XXX - Cache this
         my ($self, @args) = @_;
         my $LDLIBS = my $GLLIB = '';
         {
@@ -58,13 +58,20 @@ package Alien::FLTK;
                 $GLLIB  = '-framework AGL -framework OpenGL';
             }
             else {                  # All others are UNIX/X11...
-                $LDLIBS
-                    = '-lX11 -lXi -lXcursor -lpthread -lm -lXext -lsupc++';
+                my $XLIB = '';
+                for my $_dir (_x11_()) {    # XXX - Cache this
+                    $_dir =~ s|include|lib|;
+                    $XLIB = _find_lib('X11', $_dir);
+                    last if $XLIB;
+                }
+                $LDLIBS = ($XLIB ? '-L' . $XLIB : '')
+                    . ' -lX11 -lXi -lXcursor -lpthread -lm -lXext -lsupc++';
                 if (_find_h('GL/gl.h')) {
                     $GLLIB = _find_lib('MesaGL') ? '-lMesaGL' : '-lGL';
                     if (_find_h('GL/glu.h')) {
-                        $GLLIB = "-lGLU $GLLIB"     if _find_lib('GLU');
-                        $GLLIB = "-lMesaGLU $GLLIB" if _find_lib('MesaGL');
+                        $GLLIB = "-lGLU $GLLIB" if _find_lib('GLU');
+                        $GLLIB = "-lMesaGLU $GLLIB"
+                            if _find_lib('MesaGL');
                     }
                 }
             }
@@ -98,31 +105,72 @@ package Alien::FLTK;
     }
 
     sub _find_lib {
-        my ($find) = @_;
+        my ($find, $dir) = @_;
         $find =~ s[([\+\*\.])][\\$1]g;
+        $dir ||= $Config{'libpth'};
+        $dir = canonpath($dir);
         my $lib;
         find(
             sub {
-                $lib = $File::Find::name
+                $lib = rel2abs($File::Find::name)
                     if $_ =~ qr[lib$find$Config{'_a'}];
             },
-            split ' ',
-            $Config{'libpth'}
-        );
+            $dir
+        ) if -d $dir;
         return $lib;
     }
 
     sub _find_h {
-        my $file = rel2abs(catdir($Config{'incpath'}, shift));
-        my $found = 0;
+        my ($file, $dir) = @_;
+        $dir ||= $Config{'incpath'};
+        $dir = canonpath($dir);
+        my $found = '';
         find(
             sub {
-                $found = 1 if canonpath($File::Find::name) eq $file;
+                $found = $File::Find::dir
+                    if canonpath($File::Find::name) eq
+                        rel2abs(catdir($File::Find::dir, $file));
             },
-            $Config{'incpath'}
-        );
+            $dir
+        ) if -d $dir;
         return $found;
     }
+
+    sub _x11_ {    # Common directories for X headers. Check X11 before X11R\d
+        return     # because it is often a symlink to the current release.
+            split qr[\s+], <<'' }
+/usr/X11/include
+/usr/X11R7/include
+/usr/X11R6/include
+/usr/X11R5/include
+/usr/X11R4/include
+/usr/include/X11
+/usr/include/X11R7
+/usr/include/X11R6
+/usr/include/X11R5
+/usr/include/X11R4
+/usr/local/X11/include
+/usr/local/X11R7/include
+/usr/local/X11R6/include
+/usr/local/X11R5/include
+/usr/local/X11R4/include
+/usr/local/include/X11
+/usr/local/include/X11R7
+/usr/local/include/X11R6
+/usr/local/include/X11R5
+/usr/local/include/X11R4
+/usr/X386/include
+/usr/x386/include
+/usr/XFree86/include/X11
+/usr/include
+/usr/local/include
+/usr/unsupported/include
+/usr/athena/include
+/usr/local/x11r5/include
+/usr/lpp/Xamples/include
+/usr/openwin/include
+/usr/openwin/share/include
+
 }
 
 =pod
@@ -364,6 +412,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<C<Alien::FLTK>|Alien::FLTK> is based in part on the work of the FLTK
 project. See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm decec0b 2009-08-26 02:43:29Z sanko@cpan.org $
+=for git $Id: FLTK.pm 6d0f1be 2009-08-27 01:14:31Z sanko@cpan.org $
 
 =cut
