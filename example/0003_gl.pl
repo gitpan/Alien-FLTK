@@ -70,7 +70,7 @@ my $exe = $CC->link_executable(
                           objects            => $obj,
                           extra_linker_flags => [Alien::FLTK->ldflags(qw[gl])]
 );
-printf system($exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
+printf system('./' . $exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
 END { unlink grep defined, $source, $obj, $exe; }
 
 =pod
@@ -95,6 +95,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0003_gl.pl 4e28158 2009-08-26 01:56:14Z sanko@cpan.org $
+=for git $Id: 0003_gl.pl e048451 2009-09-02 03:23:06Z sanko@cpan.org $
 
 =cut

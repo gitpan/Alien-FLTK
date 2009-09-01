@@ -145,8 +145,9 @@ my $exe = $CC->link_executable(
                            $Config{'archlib'} . '/CORE/' . $Config{'libperl'},
                       ]
 );
-printf system($exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
+printf system('./' . $exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
 END { unlink grep defined, $source, $obj, $exe; }
+
 =pod
 
 =head1 Author
@@ -169,6 +170,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0001_embed.pl 9d2e5ca 2009-08-22 17:11:35Z sanko@cpan.org $
+=for git $Id: 0001_embed.pl e048451 2009-09-02 03:23:06Z sanko@cpan.org $
 
 =cut

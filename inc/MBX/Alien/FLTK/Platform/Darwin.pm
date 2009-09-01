@@ -1,4 +1,4 @@
-package MBX::Alien::FLTK::Platform::Solaris;
+package MBX::Alien::FLTK::Platform::Darwin;
 {
     use strict;
     use warnings;
@@ -13,10 +13,16 @@ package MBX::Alien::FLTK::Platform::Solaris;
 
     sub configure {
         my ($self) = @_;
-        $self->SUPER::configure();    # Get basic config data
+        $self->SUPER::configure(qw[no_gl no_x11]);    # Get basic config data
         print "Gathering Solaris specific configuration data...\n";
-        print "(Not using $uname scandir emulation function.)\n";
-        $self->notes('config')->{'HAVE_SCANDIR'} = undef;
+
+        # Asssumed true since this is *nix
+        print "have pthread... yes (assumed)\n";
+        $self->notes('config')->{'HAVE_PTHREAD'} = 1;
+        $self->notes(
+               ldflags => ' -framework Carbon -framework ApplicationServices '
+                   . $self->notes('ldflags'));
+        $self->notes(GL => ' -framework AGL -framework OpenGL ');
         return 1;
     }
     1;
@@ -44,6 +50,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Solaris.pm af23f6c 2009-09-01 14:10:31Z sanko@cpan.org $
+=for git $Id: Darwin.pm e048451 2009-09-02 03:23:06Z sanko@cpan.org $
 
 =cut

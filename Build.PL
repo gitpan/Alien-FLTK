@@ -23,38 +23,40 @@ my $mb = $class->new(
     dist_abstract =>
         'Installs libraries for the (experimental) 2.0.x branch of the FLTK GUI toolkit',
     requires => {
-        'Archive::Extract' => 0,
-        base               => 0,
-        Carp               => 0,
-        Config             => 0,
-        Cwd                => 0,
-        'File::Basename'   => 0,
-        'File::Fetch'      => 0,
-        'File::Find'       => 0,
-        'File::Path'       => 2.07,
-        'File::Spec'       => 0,         # used in A::F proper
-        'File::Temp'       => 0,
-        'Test::More'       => 0.88,
-        'Module::Build'    => 0.3,
-        perl               => '5.8.0',
+        'Archive::Extract'   => 0,
+        base                 => 0,
+        Carp                 => 0,
+        Config               => 0,
+        Cwd                  => 0,
+        'File::Basename'     => 0,
+        'File::Fetch'        => 0,
+        'File::Find'         => 0,
+        'File::Path'         => 2.07,
+        'File::Spec'         => 0,          # used in A::F proper
+        'File::Temp'         => 0,
+        'Test::More'         => 0.88,
+        'Module::Build'      => 0.35,
+        'ExtUtils::CBuilder' => 0.260301,
+        perl                 => '5.8.0',
         (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
          : ()
         )
     },
-    build_requires => {'Archive::Extract' => 0,
-                       base               => 0,
-                       Carp               => 0,
-                       Config             => 0,
-                       Cwd                => 0,
-                       'File::Basename'   => 0,
-                       'File::Fetch'      => 0,
-                       'File::Find'       => 0,
-                       'File::Path'       => 2.07,
-                       'File::Spec'       => 0,
-                       'File::Temp'       => 0,
-                       'Test::More'       => 0.88,
-                       'Module::Build'    => 0.3,
-                       perl               => '5.8.0',
+    build_requires => {'Archive::Extract'   => 0,
+                       base                 => 0,
+                       Carp                 => 0,
+                       Config               => 0,
+                       Cwd                  => 0,
+                       'File::Basename'     => 0,
+                       'File::Fetch'        => 0,
+                       'File::Find'         => 0,
+                       'File::Path'         => 2.07,
+                       'File::Spec'         => 0,
+                       'File::Temp'         => 0,
+                       'Test::More'         => 0.88,
+                       'Module::Build'      => 0.35,
+                       'ExtUtils::CBuilder' => 0.260301,
+                       perl                 => '5.8.0',
                        (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
                         : ()
                        )
@@ -79,28 +81,25 @@ my $mb = $class->new(
             #MailingList => 'TODO',
             repository => 'http://github.com/sanko/alien-fltk/'
         }
-    }
+    },
+
+    #quiet => 1
 );
 
 #
-print <<'#END';
+print
+    <<''; if (!$mb->cbuilder->have_compiler()) { print <<''; exit 0 } print <<'';
  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  Building FLTK requires a functioning C++ compiler.  Hold on a sec while I
-  check some stuff...
+  Alien::FLTK requires a functioning C++ compiler.  Hold on a sec while I
+  look for one...
 
-#END
-if (!$mb->cbuilder->have_compiler()) {
-    print <<'#END'; exit 0; }
-
-  Oops!  I failed to find working complier so I this is where you and I
-  part ways.  It's been real.
+  Aw, man... Looks like you're missing something important so this is where
+  you and I part ways.
  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-#END
-print <<'#END';
 
-  Looks okay here. Moving on.
+  Everything's okay here. Moving on.
  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-#END
+
 
 #$mb->notes(use_cairo => 0);           # TODO - MacOS
 #$mb->notes(use_x     => 0);           # TODO - find_lib
@@ -189,6 +188,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL 0851106 2009-08-26 02:37:39Z sanko@cpan.org $
+=for git $Id: Build.PL e048451 2009-09-02 03:23:06Z sanko@cpan.org $
 
 =cut

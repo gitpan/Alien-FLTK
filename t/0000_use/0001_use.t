@@ -27,6 +27,7 @@ $SIG{__WARN__} = (
 #
 use lib qw[blib/lib inc];
 use_ok('Alien::FLTK');
+
 =pod
 
 =head1 Author
@@ -49,6 +50,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0001_use.t 9d2e5ca 2009-08-22 17:11:35Z sanko@cpan.org $
+=for git $Id: 0001_use.t af23f6c 2009-09-01 14:10:31Z sanko@cpan.org $
 
 =cut

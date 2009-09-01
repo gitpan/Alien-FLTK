@@ -31,9 +31,10 @@ use warnings;
                                   objects            => $obj,
                                   extra_linker_flags => Alien::FLTK->ldflags()
     );
-    print system($exe) ? 'Aww...' : 'Yay!';
+    print system('./' . $exe) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $source, $obj, $exe; }
 }
+
 =pod
 
 =head1 Author
@@ -56,6 +57,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0000_synopsis.pl 9d2e5ca 2009-08-22 17:11:35Z sanko@cpan.org $
+=for git $Id: 0000_synopsis.pl e048451 2009-09-02 03:23:06Z sanko@cpan.org $
 
 =cut

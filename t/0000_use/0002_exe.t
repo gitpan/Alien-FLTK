@@ -60,6 +60,7 @@ END
     ok($exe, ucfirst $link . 'ally link exe with fltk');
     ok(!system($exe), sprintf 'Run exe we %sally linked with fltk', $link);
 }
+
 =pod
 
 =head1 Author
@@ -82,6 +83,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0002_exe.t b793f84 2009-08-27 01:05:48Z sanko@cpan.org $
+=for git $Id: 0002_exe.t af23f6c 2009-09-01 14:10:31Z sanko@cpan.org $
 
 =cut
