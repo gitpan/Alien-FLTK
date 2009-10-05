@@ -4,7 +4,7 @@ package MBX::Alien::FLTK::Platform::Windows;
     use warnings;
     use Carp qw[];
     use Config qw[%Config];
-    use lib qw[.. ../../../..];
+    use lib qw[.. ../../../.. inc];
     use MBX::Alien::FLTK::Utility
         qw[_o _a _dir _rel _abs find_h find_lib can_run];
     use MBX::Alien::FLTK;
@@ -30,60 +30,30 @@ package MBX::Alien::FLTK::Platform::Windows;
         $self->notes('config')->{'HAVE_SCANDIR'}       = undef;
         $self->notes('config')->{'HAVE_SCANDIR_POSIX'} = undef;
         {
+            print 'Checking for OpenGL... ';
             my $GL_LIB = '';
-            print 'checking for GL/gl.h... ';
-            if (!find_h('GL/gl.h')) { print "no\n" }
+            $self->notes('config')->{'HAVE_GL'} = 0;
+            if (!$self->assert_lib(lib => 'opengl32', header => 'GL/gl.h')) {
+                print "no\n";
+            }
             else {
+                $self->notes('config')->{'HAVE_GL'} = 1;
                 print "okay\n";
-                print 'checking OpenGL... ';
-                my $exe = $self->build_exe(
-                          {code => <<'', extra_linker_flags => '-lopengl32'});
-#include <GL/gl.h>
-#include <stdio.h>
-#include <stdlib.h>
-int main( ) {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    printf ("1");
-    return 0;
-}
+                $GL_LIB = '-lopengl32';
 
-                if (!($exe && `$exe`)) { print "no\n"; }
+                #
+                print 'Checking for GL/glu.h... ';
+                $self->notes('config')->{'HAVE_GL_GLU_H'} = 0;
+                if (!$self->assert_lib(lib => 'glu32', header => 'GL/glu.h'))
+                {   print "no\n";
+                }
                 else {
+                    $self->notes('config')->{'HAVE_GL_GLU_H'} = 1;
                     print "okay\n";
-                    $self->notes('config')->{'HAVE_GL'} = 1;
-                    $GL_LIB = '-lopengl32';
-
-                    #
-                    print 'checking for GL/glu.h... ';
-                    my $exe_glu =
-                        $self->build_exe(
-                        {   code =>
-                                <<'', extra_linker_flags => '-lopengl32 -lglu32'});
-#include <GL/glu.h>
-#include <stdio.h>
-#include <stdlib.h>
-int main( ) {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    printf ("1");
-    return 0;
-}
-
-                    if (!($exe_glu && `$exe_glu`)) {
-                        print "no\n";
-                    }
-                    else {
-                        print "okay\n";
-                        $self->notes('config')->{'HAVE_GL_GLU_H'} = 1;
-                        $GL_LIB = " -lglu32 $GL_LIB ";
-                    }
+                    $GL_LIB = " -lglu32 $GL_LIB ";
                 }
             }
-            if ($GL_LIB) {
-                $self->notes(GL => $GL_LIB);
-            }
-            else {
-                print "GL is disabled\n";
-            }
+            $self->notes(GL => $GL_LIB);
         }
         return 1;
     }
@@ -112,6 +82,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Windows.pm e048451 2009-09-02 03:23:06Z sanko@cpan.org $
+=for git $Id: Windows.pm 19d9998 2009-09-11 18:15:03Z sanko@cpan.org $
 
 =cut

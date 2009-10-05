@@ -79,11 +79,10 @@ my $mb = $class->new(
             license => 'http://www.perlfoundation.org/artistic_license_2_0',
 
             #MailingList => 'TODO',
-            repository => 'http://github.com/sanko/alien-fltk/'
+            repository => 'http://github.com/sanko/alien-fltk'
         }
     },
-
-    #quiet => 1
+    quiet => 1
 );
 
 #
@@ -106,6 +105,7 @@ print
 #$mb->notes(use_glut  => 0);           # TODO
 #$mb->notes(use_gl    => 1);
 #$mb->notes(use_forms => 0);           # TODO
+$mb->notes(fltk_branch => '2.0.x');
 $mb->notes(fltk_svn => $mb->dist_version =~ m[\.0?(\d+)]);
 ##################################################################### TODO ###
 $mb->notes(automated_testing => $automated_testing     ? 1 : 0);
@@ -188,6 +188,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL e048451 2009-09-02 03:23:06Z sanko@cpan.org $
+=for git $Id: Build.PL 2fbc10d 2009-09-18 03:50:45Z sanko@cpan.org $
 
 =cut

@@ -25,6 +25,7 @@ package MBX::Alien::FLTK;
              : ()                              # Hope for the best
             )
             )
+            : $OS =~ m[CygWin]i ? ('Windows', 'CygWin')    # ...baka
             : $OS =~ m[Darwin]i  ? 'Darwin'     # Mac OSX
             : $OS =~ m[BSD$]i    ? 'BSD'        # requires GNUmake (gmake)
             : $OS =~ m[Solaris]i ? 'Solaris'    # requires GNUmake (gmake)
@@ -55,7 +56,7 @@ package MBX::Alien::FLTK;
         }
         return $self;
     }
-    sub VERBOSE { shift->notes('verbose') }
+    sub VERBOSE { !shift->quiet() }
     1;
 }
 
@@ -81,6 +82,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: FLTK.pm af23f6c 2009-09-01 14:10:31Z sanko@cpan.org $
+=for git $Id: FLTK.pm 2fbc10d 2009-09-18 03:50:45Z sanko@cpan.org $
 
 =cut

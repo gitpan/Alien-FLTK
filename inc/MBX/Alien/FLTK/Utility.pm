@@ -8,7 +8,7 @@ package MBX::Alien::FLTK::Utility;
     use File::Find qw[find];
     use Exporter qw[import];
     our @EXPORT_OK
-        = qw[can_run run _o _a _exe _dll find_h find_lib _dir _abs _rel _file];
+        = qw[can_run run _o _a _exe _dll find_h find_lib _dir _abs _rel _file _split];
 
     sub can_run {    # Snagged from IPC::CMD and trimmed for my use
         my ($prog) = @_;
@@ -58,10 +58,11 @@ package MBX::Alien::FLTK::Utility;
         $file =~ m[^(.*)(?:\..*)$] or return @_;
         return catpath($vol, $dir, ($1 ? $1 : $file) . '.' . $Config{'so'});
     }
-    sub _dir  { File::Spec->catdir(@_) }              # XXX - should be locale
-    sub _abs  { File::Spec->rel2abs(@_) }
-    sub _rel  { File::Spec->abs2rel(@_) }
-    sub _file { File::Basename::fileparse(shift); }
+    sub _dir   { File::Spec->catdir(@_) }             # XXX - should be locale
+    sub _abs   { File::Spec->rel2abs(@_) }
+    sub _rel   { File::Spec->abs2rel(@_) }
+    sub _file  { File::Basename::fileparse(shift); }
+    sub _split { File::Spec->splitpath(@_) }
 
     sub _find_lib {
         my ($file, $dir) = @_;
@@ -131,6 +132,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Utility.pm af23f6c 2009-09-01 14:10:31Z sanko@cpan.org $
+=for git $Id: Utility.pm 2fbc10d 2009-09-18 03:50:45Z sanko@cpan.org $
 
 =cut

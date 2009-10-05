@@ -1,6 +1,6 @@
 ---
 name: Alien-FLTK
-version: 0.06844
+version: 0.06879
 author:
   - 'Sanko Robinson <sanko@cpan.org>'
 abstract: Installs libraries for the (experimental) 2.0.x branch of the FLTK GUI toolkit
@@ -10,7 +10,7 @@ resources:
   bugtracker: http://github.com/sanko/alien-fltk/issues
   homepage: http://sanko.github.com/fltk-perl/
   license: http://www.perlfoundation.org/artistic_license_2_0
-  repository: http://github.com/sanko/alien-fltk/
+  repository: http://github.com/sanko/alien-fltk
 build_requires:
   Archive::Extract: 0
   Carp: 0
@@ -44,11 +44,11 @@ requires:
   base: 0
   perl: v5.8.0
 configure_requires:
-  Module::Build: 0.34
+  Module::Build: 0.35
 provides:
   Alien::FLTK:
     file: lib/Alien/FLTK.pm
-    version: 0.06844
+    version: 0.06879
 no_index:
   directory:
     - t
