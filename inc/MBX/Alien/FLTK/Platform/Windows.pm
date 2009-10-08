@@ -34,8 +34,8 @@ package MBX::Alien::FLTK::Platform::Windows;
             print 'Checking for OpenGL... ';
             my $GL_LIB = '';
             $self->notes('config')->{'HAVE_GL'} = 0;
-            if (!$self->assert_lib(lib => 'opengl32', header => 'GL/gl.h')) {
-                print "no\n";
+            if (!$self->assert_lib({lib => 'opengl32', header => 'GL/gl.h'}))
+            {   print "no\n";
                 push @{$self->notes('errors')},
                     {stage   => 'configure',
                      fatal   => 0,
@@ -50,7 +50,8 @@ package MBX::Alien::FLTK::Platform::Windows;
                 #
                 print 'Checking for GL/glu.h... ';
                 $self->notes('config')->{'HAVE_GL_GLU_H'} = 0;
-                if (!$self->assert_lib(lib => 'glu32', header => 'GL/glu.h'))
+                if (!$self->assert_lib({lib => 'glu32', header => 'GL/glu.h'})
+                    )
                 {   print "no\n";
                 }
                 else {
@@ -89,6 +90,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Windows.pm 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $
+=for git $Id: Windows.pm 347de4a 2009-10-09 00:59:57Z sanko@cpan.org $
 
 =cut

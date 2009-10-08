@@ -81,13 +81,14 @@ int main ( ) {
                 for my $incdir ($self->_x11_()) {
                     my $libdir = $incdir;
                     $libdir =~ s|include|lib|;
-                    eval $self->assert_lib(lib     => 'X11',
+                    if ($self->assert_lib({lib     => 'X11',
                                            libpath => $libdir,
                                            header  => 'X11/Xlib.h',
                                            incpath => $incdir
-                    );
-                    if (!$@) {
-                        $self->notes(  'cxxflags' => $self->notes('cxxflags')
+                                          }
+                        )
+                        )
+                    {   $self->notes(  'cxxflags' => $self->notes('cxxflags')
                                      . " -I$incdir ");
                         $self->notes('ldflags' => " -L$libdir -lX11 "
                                      . $self->notes('ldflags'));
@@ -116,14 +117,15 @@ If I'm just missing something... patches welcome.
                     for my $incdir ($self->_x11_()) {
                         my $libdir = $incdir;
                         $libdir =~ s|include|lib|;
-                        eval $self->assert_lib(
-                                            lib     => 'Xcursor',
-                                            libpath => $libdir,
-                                            header => 'X11/Xcursor/Xcursor.h',
-                                            incpath => $incdir
-                        );
-                        if (!$@) {
-                            $self->notes(
+                        if ($self->assert_lib(
+                                        {lib     => 'Xcursor',
+                                         libpath => $libdir,
+                                         header  => 'X11/Xcursor/Xcursor.h',
+                                         incpath => $incdir
+                                        }
+                            )
+                            )
+                        {   $self->notes(
                                         'cxxflags' => $self->notes('cxxflags')
                                             . " -I$incdir ");
                             $self->notes('ldflags' => " -L$libdir -lXcursor  "
@@ -153,17 +155,17 @@ x-dev, and libxcursor-dev. If I'm just missing something... patches welcome.
                 for my $incdir ($self->_x11_()) {
                     my $libdir = $incdir;
                     $libdir =~ s|include|lib|;
-                    eval $self->assert_lib(
-                                         lib     => [qw[Xi Xext]],
-                                         libpath => $libdir,
-                                         header  => [
+                    if ($self->assert_lib({lib     => [qw[Xi Xext]],
+                                           libpath => $libdir,
+                                           header  => [
                                                     'X11/extensions/XInput.h',
                                                     'X11/extensions/XI.h'
-                                         ],
-                                         incpath => $incdir
-                    );
-                    if (!$@) {
-                        $self->notes(  'cxxflags' => $self->notes('cxxflags')
+                                           ],
+                                           incpath => $incdir
+                                          }
+                        )
+                        )
+                    {   $self->notes(  'cxxflags' => $self->notes('cxxflags')
                                      . " -I$incdir ");
                         $self->notes('ldflags' => " -L$libdir -lXext -lXi "
                                      . $self->notes('ldflags'));
@@ -266,9 +268,12 @@ int main () {
                 my $GL_LIB = '';
                 $self->notes('config')->{'HAVE_GL'} = 0;
                 for my $_GL_lib (qw[GL MesaGL]) {
-                    eval "assert_lib(lib=>'$_GL_lib', header=>'GL/gl.h' )";
-                    if (!$@) {
-                        $GL_LIB = '-l' . $_GL_lib;
+                    if ($self->assert_lib({lib    => $_GL_lib,
+                                           header => 'GL/gl.h'
+                                          }
+                        )
+                        )
+                    {   $GL_LIB = '-l' . $_GL_lib;
                         $self->notes('config')->{'HAVE_GL'} = 1;
                         print "okay ($GL_LIB)\n";
                         last;
@@ -285,15 +290,16 @@ int main () {
                 }
                 if ($GL_LIB && $self->notes('config')->{'HAVE_GL_GLU_H'}) {
                     print 'Checking for GL/glu.h... ';
-                    eval "assert_lib(lib=>'GLU', header=>'GL/glu.h' )";
-                    if ($@) {
-                        print "no\n";
-                    }
-                    else {
-                        $self->notes('config')->{'HAVE_GL_GLU_H'} = 1;
+                    if ($self->assert_lib({lib    => 'GLU',
+                                           header => 'GL/glu.h'
+                                          }
+                        )
+                        )
+                    {   $self->notes('config')->{'HAVE_GL_GLU_H'} = 1;
                         print "okay\n";
                         $GL_LIB = " -lGLU  $GL_LIB ";
                     }
+                    else { print "no\n" }
                 }
                 $self->notes(GL => $GL_LIB);
             }
@@ -362,6 +368,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Unix.pm 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $
+=for git $Id: Unix.pm 347de4a 2009-10-09 00:59:57Z sanko@cpan.org $
 
 =cut

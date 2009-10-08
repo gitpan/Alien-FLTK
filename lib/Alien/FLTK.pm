@@ -12,7 +12,7 @@ package Alien::FLTK;
     close DATA;
     sub new { return bless \$|, shift; }
     sub config { return $_config; }
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6879; our $UNSTABLE_RELEASE = 3; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6879; our $UNSTABLE_RELEASE = 6; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
     sub branch   { return $_config->{'fltk_branch'} }
 
@@ -292,9 +292,6 @@ Uh, yeah, I have no idea.
 
 =head2 Installation
 
-Building the fltk libs requires a functioning C++ compiler, bash, and (to
-make life easy) a version of make.
-
 The distribution is based on L<Module::Build|Module::Build>, so use the
 following procedure:
 
@@ -387,7 +384,7 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 7ece19a 2009-10-08 04:09:32Z sanko@cpan.org $
+=for git $Id: FLTK.pm 1712632 2009-10-08 21:09:21Z sanko@cpan.org $
 
 =cut
 __DATA__

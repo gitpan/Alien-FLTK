@@ -56,11 +56,7 @@ Requirements
       Uh, yeah, I have no idea.
 
 Installation
-  Building the fltk libs requires a functioning C++ compiler, bash, and (to
-  make life easy) a version of make.
-
-    The distribution is based on Module::Build, so use the following
-    procedure:
+  The distribution is based on Module::Build, so use the following procedure:
 
       > perl Build.PL
       > ./Build
@@ -119,4 +115,4 @@ License and Legal
   Alien::FLTK is based in part on the work of the FLTK project. See
   http://www.fltk.org/.
 
-$Id: README 539ccd4 2009-10-08 03:55:46Z sanko@cpan.org $
+$Id: README 4e737ed 2009-10-08 16:58:54Z sanko@cpan.org $

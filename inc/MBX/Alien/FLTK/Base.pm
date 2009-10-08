@@ -404,7 +404,7 @@ package MBX::Alien::FLTK::Base;
 #~ #undef HAVE_DLSYM
 #~
 #~ /*
-#~  * End of "$Id: Base.pm f854b0d 2009-10-08 03:55:19Z sanko@cpan.org $".
+#~  * End of "$Id: Base.pm 347de4a 2009-10-09 00:59:57Z sanko@cpan.org $".
 #~  */
             }
         );
@@ -996,15 +996,14 @@ END
                 seek($fh, tell($fh), 0);
                 my $data = $self->notes();
                 if (eval 'require Data::Dump') {
-                    $fh->print(  'do{ my $x = '
-                               . Data::Dump::pp($data)
-                               . "; \$x; }\n");
+                    $fh->print(sprintf 'do{ my $x = %s; $x; }' . "\n",
+                               Data::Dump::pp($data));
                 }
                 else {
                     require Data::Dumper;
                     my $Dumper = Data::Dumper->new([$data], ['x']);
                     $Dumper->Purity(1);
-                    $fh->print(sprintf 'do{ my %s; \$x; }' . "\n",
+                    $fh->print(sprintf 'do{ my %s; $x; }' . "\n",
                                $Dumper->Dump());
                 }
                 truncate($fh, tell($fh));
@@ -1080,10 +1079,11 @@ END
         return if !@{$self->notes('errors')};
         my $fatal = 0;
         for my $error (@{$self->notes('errors')}) {
+            next if $error->{'seen'}++ && !$error->{'fatal'};
             $fatal += $error->{'fatal'};
             my $msg = $error->{'message'};
             $msg =~ s|(.+)|  $1|gm;
-            printf "%s error enountered during %s:\n%s\n",
+            printf "\nWARNING: %s error enountered during %s:\n%s\n",
                 ($error->{'fatal'} ? ('*** Fatal') : 'Non-fatal'),
                 $error->{'stage'}, $msg, '-- ' x 10;
         }
@@ -1107,20 +1107,24 @@ END
 
         # Ganked from Devel::CheckLib
         sub assert_lib {
-            my ($self, %args) = @_;
+            my ($self, $args) = @_;
             my (@libs, @libpaths, @headers, @incpaths);
 
             # FIXME: these four just SCREAM "refactor" at me
-            @libs = (ref($args{lib}) ? @{$args{lib}} : $args{lib})
-                if $args{lib};
-            @libpaths
-                = (ref($args{libpath}) ? @{$args{libpath}} : $args{libpath})
-                if $args{libpath};
-            @headers = (ref($args{header}) ? @{$args{header}} : $args{header})
-                if $args{header};
-            @incpaths
-                = (ref($args{incpath}) ? @{$args{incpath}} : $args{incpath})
-                if $args{incpath};
+            @libs = (ref($args->{'lib'}) ? @{$args->{'lib'}} : $args->{'lib'})
+                if $args->{'lib'};
+            @libpaths = (ref($args->{'libpath'})
+                         ? @{$args->{'libpath'}}
+                         : $args->{'libpath'}
+            ) if $args->{'libpath'};
+            @headers = (ref($args->{'header'})
+                        ? @{$args->{'header'}}
+                        : $args->{'header'}
+            ) if $args->{'header'};
+            @incpaths = (ref($args->{'incpath'})
+                         ? @{$args->{'incpath'}}
+                         : $args->{'incpath'}
+            ) if $args->{'incpath'};
             my @missing;
 
             # first figure out which headers we can't find ...
@@ -1133,8 +1137,8 @@ END
                      lib_dirs     => \@libpaths
                     }
                     );
-                push @missing, $header if !-x $exe;
-                unlink $exe;
+                if   (defined $exe && -x $exe) { unlink $exe }
+                else                           { push @missing, $header }
             }
 
             # now do each library in turn with no headers
@@ -1147,8 +1151,8 @@ END
                                      extra_linker_flags => "-l$lib"
                                     }
                     );
-                push @missing, $lib if !-x $exe;
-                unlink $exe;
+                if   (defined $exe && -x $exe) { unlink $exe }
+                else                           { push @missing, $lib }
             }
             my $miss_string = join(q{, }, map {qq{'$_'}} @missing);
             if (@missing) {

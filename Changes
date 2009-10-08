@@ -1,6 +1,6 @@
-Version 0.XXXXX | In the not too distant future | 7ece19a
+Version 0.XXXXX | In the not too distant future | 1712632
     Resolved Issues/Bug Fixes:
-     * None yet
+     * lib/header checks (should) now work on Unix
 
     Internal/Behavioral Changes:
      * We configure fltk before creating Build script in case we run into
@@ -69,6 +69,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06879_003 $ from git $Rev: 7ece19a $
-$Date: 2009-10-08 04:09:32Z (Thu, 08 Oct 2009) $
-$Url: http://github.com/sanko/alien-fltk/raw/7ece19a0875fda567440bdf76f821c6d02e3d0bf/Changes $
+$Ver: 0.06879_006 $ from git $Rev: 1712632 $
+$Date: 2009-10-08 21:09:21Z (Thu, 08 Oct 2009) $
+$Url: http://github.com/sanko/alien-fltk/raw/17126327d8c1836dfa3966bb0ac4cad033f57c98/Changes $
