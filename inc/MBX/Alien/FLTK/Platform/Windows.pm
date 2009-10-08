@@ -13,6 +13,7 @@ package MBX::Alien::FLTK::Platform::Windows;
 
     sub configure {
         my ($self) = @_;
+        $self->quiet(1);
         $self->SUPER::configure();    # Get basic config data
         print "Gathering Windows specific configuration data...\n";
         $self->notes(ldflags => $self->notes('ldflags')
@@ -35,6 +36,11 @@ package MBX::Alien::FLTK::Platform::Windows;
             $self->notes('config')->{'HAVE_GL'} = 0;
             if (!$self->assert_lib(lib => 'opengl32', header => 'GL/gl.h')) {
                 print "no\n";
+                push @{$self->notes('errors')},
+                    {stage   => 'configure',
+                     fatal   => 0,
+                     message => 'OpenGL libs were not found'
+                    };
             }
             else {
                 $self->notes('config')->{'HAVE_GL'} = 1;
@@ -55,6 +61,7 @@ package MBX::Alien::FLTK::Platform::Windows;
             }
             $self->notes(GL => $GL_LIB);
         }
+        $self->quiet(0);
         return 1;
     }
     1;
@@ -82,6 +89,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Windows.pm 19d9998 2009-09-11 18:15:03Z sanko@cpan.org $
+=for git $Id: Windows.pm 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $
 
 =cut

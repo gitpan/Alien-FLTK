@@ -1,31 +1,8 @@
-#!/usr/bin/perl
 use strict;
 use warnings;
 BEGIN { chdir '../..' if not -d '_build'; }
 use Test::More tests => 1;
-use Config qw[%Config];
-use File::Temp qw[tempfile tempdir];
-use File::Spec::Functions qw[rel2abs catfile];
-use File::Basename qw[dirname];
-use Time::HiRes qw[];
-use Module::Build qw[];
-use lib qw[blib/lib inc];
-use Alien::FLTK;
-$|++;
-my $test_builder    = Test::More->builder;
-my $build           = Module::Build->current;
-my $release_testing = $build->config_data('release_testing');
-my $verbose         = $build->config_data('verbose');
-$SIG{__WARN__} = (
-    $verbose
-    ? sub {
-        diag(sprintf(q[%02.4f], Time::HiRes::time- $^T), q[ ], shift);
-        }
-    : sub { }
-);
-
-#
-use lib qw[blib/lib inc];
+use lib qw[blib/lib];
 use_ok('Alien::FLTK');
 
 =pod
@@ -50,6 +27,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0001_use.t af23f6c 2009-09-01 14:10:31Z sanko@cpan.org $
+=for git $Id: 0001_use.t 6aa191b 2009-10-08 00:04:06Z sanko@cpan.org $
 
 =cut

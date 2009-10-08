@@ -41,6 +41,7 @@ package MBX::Alien::FLTK;
         $self->notes(platform => \@platform);
         $self->notes(os       => $OS);
         $self->notes(cc       => $CC);
+        $self->notes(errors   => []);
         return $self;
     }
 
@@ -56,7 +57,6 @@ package MBX::Alien::FLTK;
         }
         return $self;
     }
-    sub VERBOSE { !shift->quiet() }
     1;
 }
 
@@ -82,6 +82,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: FLTK.pm 2fbc10d 2009-09-18 03:50:45Z sanko@cpan.org $
+=for git $Id: FLTK.pm 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $
 
 =cut

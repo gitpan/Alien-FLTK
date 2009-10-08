@@ -1,3 +1,18 @@
+Version 0.XXXXX | In the not too distant future | 7ece19a
+    Resolved Issues/Bug Fixes:
+     * None yet
+
+    Internal/Behavioral Changes:
+     * We configure fltk before creating Build script in case we run into
+          trouble (typically missing libs on *nix) and need to exit(0) so test
+          results in NA
+
+    Documentation/Sample Code/Test Suite:
+     * Full OO syntax is now used in docs, tests, and examples
+
+    Notes:
+     * I'll get this right eventually... ((sigh))
+
 Version 0.06879 | 2009-10-04 04:46:04Z (Sun, 04 Oct 2009) | b9cf221
     Resolved Issues/Bug Fixes:
      * None yet
@@ -54,6 +69,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06879 $ from git $Rev: 60f2535 $
-$Date: 2009-09-12 05:51:26Z (Sat, 12 Sep 2009) $
-$Url: http://github.com/sanko/alien-fltk/raw/60f25353e9e9ed64b4b6f28156067957df3b458e/Changes $
+$Ver: 0.06879_003 $ from git $Rev: 7ece19a $
+$Date: 2009-10-08 04:09:32Z (Thu, 08 Oct 2009) $
+$Url: http://github.com/sanko/alien-fltk/raw/7ece19a0875fda567440bdf76f821c6d02e3d0bf/Changes $

@@ -81,24 +81,15 @@ my $mb = $class->new(
             #MailingList => 'TODO',
             repository => 'http://github.com/sanko/alien-fltk'
         }
-    },
-    quiet => 1
+    }
 );
 
 #
-print
-    <<''; if (!$mb->cbuilder->have_compiler()) { print <<''; exit 0 } print <<'';
- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-  Alien::FLTK requires a functioning C++ compiler.  Hold on a sec while I
-  look for one...
-
-  Aw, man... Looks like you're missing something important so this is where
-  you and I part ways.
- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
-  Everything's okay here. Moving on.
- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-
+$mb->quiet(1);    # Don't print while looking for compiler
+print "Checking for a functioning C++ compiler...\n";
+if ($mb->cbuilder->have_compiler()) { print "Looks good\n\n" }
+else { print "fail\n* No compiler found. Exiting.\n"; exit 0 }
+$mb->quiet(0);    # You can get noisy again.
 
 #$mb->notes(use_cairo => 0);           # TODO - MacOS
 #$mb->notes(use_x     => 0);           # TODO - find_lib
@@ -113,6 +104,11 @@ $mb->notes(release_testing   => $is_developer);
 $mb->notes(test_suite        => \@tests);
 $mb->notes(gmtime            => scalar gmtime);
 $mb->notes(threads           => $Config{'useithreads'} ? 1 : 0);
+############################################################## Get to work ###
+for my $action (qw[fetch_fltk extract_fltk configure_fltk write_config_h]) {
+    $mb->depends_on($action);
+    $mb->dispatch('check_errors');
+}
 $mb->create_build_script;
 ##############################################################################
 exit 0;
@@ -188,6 +184,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL 2fbc10d 2009-09-18 03:50:45Z sanko@cpan.org $
+=for git $Id: Build.PL 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $
 
 =cut

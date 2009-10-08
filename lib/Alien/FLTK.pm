@@ -10,8 +10,9 @@ package Alien::FLTK;
         or warn
         "Couldn't load Alien::FLTK configuration data: $@\n Using defaults";
     close DATA;
+    sub new { return bless \$|, shift; }
     sub config { return $_config; }
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6879; our $UNSTABLE_RELEASE = 0; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6879; our $UNSTABLE_RELEASE = 3; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
     sub branch   { return $_config->{'fltk_branch'} }
 
@@ -51,15 +52,15 @@ package Alien::FLTK;
     }
 
     sub cflags {
-        return $_config->{'cxxflags'} . ' -I' . Alien::FLTK->include_path();
+        return $_config->{'cxxflags'} . ' -I' . shift->include_path();
     }
-    sub cxxflags { return Alien::FLTK->cflags() . ' -Wno-non-virtual-dtor'; }
+    sub cxxflags { return shift->cflags() . ' -Wno-non-virtual-dtor'; }
 
     sub ldflags {    # XXX - Cache this
         my ($self, @args) = @_;
 
         #
-        my $libdir = Alien::FLTK->library_path();
+        my $libdir = shift->library_path();
 
         # Calculate needed libraries
         my $SHAREDSUFFIX = $Config{'_a'};
@@ -129,6 +130,7 @@ C<2.0.x> branch of the FLTK GUI toolkit.
     use Alien::FLTK;
     use ExtUtils::CBuilder;
     my $CC     = ExtUtils::CBuilder->new();
+    my $AF     = $AF->new();
     my $source = 'hello_world.cxx';
     open(my $FH, '>', $source) || die '...';
     syswrite($FH, <<'') || die '...'; close $FH;
@@ -150,44 +152,55 @@ C<2.0.x> branch of the FLTK GUI toolkit.
       }
 
     my $obj = $CC->compile(source               => $source,
-                           extra_compiler_flags => Alien::FLTK->cxxflags());
+                           extra_compiler_flags => $AF->cxxflags());
     my $exe = $CC->link_executable(
                                   objects            => $obj,
-                                  extra_linker_flags => Alien::FLTK->ldflags()
+                                  extra_linker_flags => $AF->ldflags()
     );
     print system('./' . $exe) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $source, $obj, $exe; }
 
+=head1 Constructor
+
+There are no per-object configuration options as of this version, but there
+may be in the future, so any new code using L<Alien::FLTK|Alien::FLTK> should
+create objects with the C<new> constructor.
+
+    my $AF = Alien::FLTK->new( );
+
 =head1 Methods
+
+After creating a new L<Alien::FLTK|Alien::FLTK> object, use the following
+methods to gather information:
 
 =head2 C<include_path>
 
-    my $include_path = Alien::FLTK->include_path;
+    my $include_path = $AF->include_path( );
 
 Returns the location of the headers installed during the build process.
 
 =head2 C<library_path>
 
-    my $include_path = Alien::FLTK->library_path;
+    my $include_path = $AF->library_path( );
 
 Returns the location of the private libraries we made and installed
 during the build process.
 
 =head2 C<cflags>
 
-    my $cflags = Alien::FLTK->cflags;
+    my $cflags = $AF->cflags( );
 
 Returns additional C compiler flags to be used.
 
 =head2 C<cxxflags>
 
-    my $cxxflags = Alien::FLTK->cxxflags;
+    my $cxxflags = $AF->cxxflags( );
 
 Returns additional flags to be used to when compiling C++ using FLTK.
 
 =head2 C<ldflags>
 
-    my $ldflags = Alien::FLTK->ldflags(qw[gl images]);
+    my $ldflags = $AF->ldflags( qw[gl images] );
 
 Returns additional linker flags to be used. This method can automatically add
 appropriate flags based on how you plan on linking to fltk. Acceptable
@@ -199,7 +212,8 @@ arguments are:
 
 Returns flags to link against a static FLTK library.
 
-I<FLTK's license allows static linking, btw.>
+FLTK's license allows static linking, but L<Alien::FLTK|Alien::FLTK> does not
+build static libs. ...yet.
 
 =item C<gl>
 
@@ -228,14 +242,14 @@ Include flags to use FLTK's forms compatibility layer.
 
 =head2 C<revision>
 
-    my $revision = Alien::FLTK->revision;
+    my $revision = $AF->revision( );
 
-Returns the SVN revision number of the source L<C<Alien::FLTK>|Alien::FLTK>
+Returns the SVN revision number of the source L<Alien::FLTK|Alien::FLTK>
 was built with.
 
 =head2 C<capabilities>
 
-    my $caps = Alien::FLTK->capabilities;
+    my $caps = $AF->capabilities( );
 
 Returns a list of capabilities supported by your L<Alien::FLTK|Alien::FLTK>
 installation. This list can be handed directly to
@@ -243,7 +257,7 @@ L<C<ldflags( )>|Alien::FLTK/ldflags>.
 
 =head2 C<config>
 
-    my $configuration = Alien::FLTK->config;
+    my $configuration = $AF->config( );
 
 Returns a hashref containing the raw configuration data collected during
 build. This would be helpful when reporting bugs, etc.
@@ -252,39 +266,27 @@ build. This would be helpful when reporting bugs, etc.
 
 =head2 Requirements
 
-The Fast Light Toolkit works right out of the box on Windows (MinGW), but for
-*nix, make sure the following libs are installed first...
+Prerequisites differ by system...
 
 =over
 
-=item X11 libs
+=item Win32
 
-On Debian Linux, the X11 development package is listed as libx11-dev.
+The fltk2 libs and L<Alien::FLTK|Alien::FLTK> both build right out of the box
+with MinGW. Further testing is needed for other setups.
 
-=item X11 Input libs
+=item X11/*nix
 
-On Debian Linux, the X11 Input development package is listed as libxi-dev.
+X11-based systems require several development packages. On Debian, these may
+be installed with...
 
-=item X11 Cursor libs
+  > sudo apt-get install libx11-dev
+  > sudo apt-get install libxi-dev
+  > sudo apt-get install libxcursor-dev
 
-On Debian Linux, the X11 Cursor development package is listed as
-libxcursor-dev.
+=item Darwin/OSX
 
-Note: The Xcursor libs are optional.
-
-=back
-
-Once installed, L<Alien::FLTK> depends on:
-
-=over
-
-=item L<Config|Config>
-
-=item L<File::Spec::Functions>
-
-=item L<File::Basename>
-
-=item L<File::Find>
+Uh, yeah, I have no idea.
 
 =back
 
@@ -296,14 +298,10 @@ make life easy) a version of make.
 The distribution is based on L<Module::Build|Module::Build>, so use the
 following procedure:
 
-  perl Build.PL
-  ./Build
-  ./Build test
-  ./Build install
-
-An attempt has been made to work around an incomplete set of build tools. This
-fallback requires L<ExtUtils::CBuilder|ExtUtils::CBuilder> and plenty of
-begging. Consider it alpha at best.
+  > perl Build.PL
+  > ./Build
+  > ./Build test
+  > ./Build install
 
 =head2 Support Links
 
@@ -386,10 +384,10 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-L<C<Alien::FLTK>|Alien::FLTK> is based in part on the work of the FLTK
-project. See http://www.fltk.org/.
+L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
+See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm b9cf221 2009-10-04 04:46:04Z sanko@cpan.org $
+=for git $Id: FLTK.pm 7ece19a 2009-10-08 04:09:32Z sanko@cpan.org $
 
 =cut
 __DATA__

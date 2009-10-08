@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Alien::FLTK;
 use ExtUtils::CBuilder;
+my $AF     = Alien::FLTK->new();
 my $CC     = ExtUtils::CBuilder->new();
 my $source = 'gl_hello_world.cxx';
 open(my $FH, '>', $source) || die '...';
@@ -64,11 +65,9 @@ int main( int argc, char **argv ) {
 }
 
 my $obj = $CC->compile(source               => $source,
-                       extra_compiler_flags => Alien::FLTK->cxxflags());
-my $exe = $CC->link_executable(
-                          objects            => $obj,
-                          extra_linker_flags => [Alien::FLTK->ldflags(qw[gl])]
-);
+                       extra_compiler_flags => $AF->cxxflags());
+my $exe = $CC->link_executable(objects            => $obj,
+                               extra_linker_flags => [$AF->ldflags(qw[gl])]);
 printf system('./' . $exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
 END { unlink grep defined, $source, $obj, $exe; }
 
@@ -94,6 +93,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0002_gl.pl 1d4b8d3 2009-10-03 23:51:59Z sanko@cpan.org $
+=for git $Id: 0002_gl.pl 0d33600 2009-10-08 02:59:23Z sanko@cpan.org $
 
 =cut

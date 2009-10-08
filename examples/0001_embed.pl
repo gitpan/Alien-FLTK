@@ -3,6 +3,7 @@ use warnings;
 use Alien::FLTK;
 use ExtUtils::CBuilder;
 use Config qw[%Config];
+my $AF     = Alien::FLTK->new();
 my $CC     = ExtUtils::CBuilder->new();
 my $source = 'embed.cxx';
 open(my $FH, '>', $source) || die '...';
@@ -136,13 +137,11 @@ int main( int argc, char **argv, char **env ) {
 */
 
 my $obj = $CC->compile(source               => $source,
-                       extra_compiler_flags => Alien::FLTK->cxxflags());
+                       extra_compiler_flags => $AF->cxxflags());
 my $exe = $CC->link_executable(
-                      objects            => $obj,
-                      extra_linker_flags => [
-                           Alien::FLTK->ldflags(),
-                           $Config{'archlib'} . '/CORE/' . $Config{'libperl'},
-                      ]
+     objects => $obj,
+     extra_linker_flags =>
+         [$AF->ldflags(), $Config{'archlib'} . '/CORE/' . $Config{'libperl'},]
 );
 printf system('./' . $exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
 END { unlink grep defined, $source, $obj, $exe; }
@@ -169,6 +168,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0001_embed.pl e7f12dc 2009-09-11 23:10:32Z sanko@cpan.org $
+=for git $Id: 0001_embed.pl 0d33600 2009-10-08 02:59:23Z sanko@cpan.org $
 
 =cut

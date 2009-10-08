@@ -3,6 +3,7 @@ use warnings;
 {
     use Alien::FLTK;
     use ExtUtils::CBuilder;
+    my $AF     = Alien::FLTK->new();
     my $CC     = ExtUtils::CBuilder->new();
     my $source = 'hello_world.cxx';
     open(my $FH, '>', $source) || die '...';
@@ -25,11 +26,9 @@ use warnings;
       }
 
     my $obj = $CC->compile(source               => $source,
-                           extra_compiler_flags => Alien::FLTK->cxxflags());
-    my $exe = $CC->link_executable(
-                                  objects            => $obj,
-                                  extra_linker_flags => Alien::FLTK->ldflags()
-    );
+                           extra_compiler_flags => $AF->cxxflags());
+    my $exe = $CC->link_executable(objects            => $obj,
+                                   extra_linker_flags => $AF->ldflags());
     print system('./' . $exe) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $source, $obj, $exe; }
 }
@@ -56,6 +55,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0000_synopsis.pl e7f12dc 2009-09-11 23:10:32Z sanko@cpan.org $
+=for git $Id: 0000_synopsis.pl 0d33600 2009-10-08 02:59:23Z sanko@cpan.org $
 
 =cut
