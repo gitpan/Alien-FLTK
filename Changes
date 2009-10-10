@@ -1,6 +1,7 @@
-Version 0.XXXXX | In the not too distant future | 1712632
+Version 0.XXXXX | In the not too distant future | 65cdda1
     Resolved Issues/Bug Fixes:
      * lib/header checks (should) now work on Unix
+     * configure action /should/ work on Solaris
 
     Internal/Behavioral Changes:
      * We configure fltk before creating Build script in case we run into
@@ -9,6 +10,7 @@ Version 0.XXXXX | In the not too distant future | 1712632
 
     Documentation/Sample Code/Test Suite:
      * Full OO syntax is now used in docs, tests, and examples
+     * Trimmed down t/0000_use/0002_exe.t so tests don't fail under tunneled X11
 
     Notes:
      * I'll get this right eventually... ((sigh))
@@ -69,6 +71,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06879_006 $ from git $Rev: 1712632 $
-$Date: 2009-10-08 21:09:21Z (Thu, 08 Oct 2009) $
-$Url: http://github.com/sanko/alien-fltk/raw/17126327d8c1836dfa3966bb0ac4cad033f57c98/Changes $
+$Ver: 0.06879_009 $ from git $Rev: b4b6306 $
+$Date: 2009-10-10 15:25:46Z (Sat, 10 Oct 2009) $
+$Url: http://github.com/sanko/alien-fltk/raw/b4b63067195e3ef912aa7b4dce19541c04b06c1f/Changes $

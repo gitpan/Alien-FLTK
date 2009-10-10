@@ -9,7 +9,7 @@ Synopsis
     use Alien::FLTK;
     use ExtUtils::CBuilder;
     my $CC     = ExtUtils::CBuilder->new();
-    my $AF     = $AF->new();
+    my $AF     = Alien::FLTK->new();
     my $source = 'hello_world.cxx';
     open(my $FH, '>', $source) || die '...';
     syswrite($FH, <<'') || die '...'; close $FH;
@@ -115,4 +115,4 @@ License and Legal
   Alien::FLTK is based in part on the work of the FLTK project. See
   http://www.fltk.org/.
 
-$Id: README 4e737ed 2009-10-08 16:58:54Z sanko@cpan.org $
+$Id: README 1622ff0 2009-10-10 15:08:27Z sanko@cpan.org $

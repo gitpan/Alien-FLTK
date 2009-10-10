@@ -13,7 +13,8 @@ package MBX::Alien::FLTK::Platform::Darwin;
 
     sub configure {
         my ($self) = @_;
-        $self->SUPER::configure(qw[no_gl no_x11]);    # Get basic config data
+        $self->SUPER::configure(qw[no_gl no_x11])
+            || return 0;    # Get basic config data
         print "Gathering Solaris specific configuration data...\n";
 
         # Asssumed true since this is *nix
@@ -50,6 +51,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Darwin.pm e048451 2009-09-02 03:23:06Z sanko@cpan.org $
+=for git $Id: Darwin.pm 126d9d5 2009-10-10 15:09:55Z sanko@cpan.org $
 
 =cut

@@ -12,7 +12,7 @@ package Alien::FLTK;
     close DATA;
     sub new { return bless \$|, shift; }
     sub config { return $_config; }
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6879; our $UNSTABLE_RELEASE = 6; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6879; our $UNSTABLE_RELEASE = 9; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
     sub branch   { return $_config->{'fltk_branch'} }
 
@@ -130,7 +130,7 @@ C<2.0.x> branch of the FLTK GUI toolkit.
     use Alien::FLTK;
     use ExtUtils::CBuilder;
     my $CC     = ExtUtils::CBuilder->new();
-    my $AF     = $AF->new();
+    my $AF     = Alien::FLTK->new();
     my $source = 'hello_world.cxx';
     open(my $FH, '>', $source) || die '...';
     syswrite($FH, <<'') || die '...'; close $FH;
@@ -339,7 +339,7 @@ http://github.com/sanko/alien-fltk/ and you are invited to fork it.
 
 =head2 Examples
 
-Please see the L<Synopsis|/"Synopsis"> and the files in the C</example/>.
+Please see the L<Synopsis|/"Synopsis"> and the files in the C</examples/>.
 
 =head2 Bugs
 
@@ -384,8 +384,9 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 1712632 2009-10-08 21:09:21Z sanko@cpan.org $
+=for git $Id: FLTK.pm 65cdda1 2009-10-10 15:47:58Z sanko@cpan.org $
 
 =cut
+
 __DATA__
 do{ my $x = { }; $x; }
