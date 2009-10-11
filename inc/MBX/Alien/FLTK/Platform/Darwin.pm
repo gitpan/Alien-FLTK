@@ -51,6 +51,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Darwin.pm 126d9d5 2009-10-10 15:09:55Z sanko@cpan.org $
+=for git $Id: Darwin.pm d9bb897 2009-10-10 16:13:33Z sanko@cpan.org $
 
 =cut

@@ -120,19 +120,6 @@ sub find_cb {
     return push @tests, $File::Find::name;
 }
 
-BEGIN {    # Tired of getting FAIL-mail from outdated build environments
-    if ($] < 5.008008) {    # 5.8.8 is already 3+ years old...
-        warn sprintf 'Perl v5.8.8 required--this is only v%vd, stopped', $^V;
-        exit 0;
-    }
-    if ($Module::Build::VERSION < 0.3) {
-        warn sprintf
-            'Module::Build version 0.3 required--this is only version %s',
-            $Module::Build::VERSION;
-        exit 0;
-    }
-}
-
 =pod
 
 =head1 NAME
@@ -184,6 +171,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $
+=for git $Id: Build.PL a3977c6 2009-10-11 05:45:47Z sanko@cpan.org $
 
 =cut

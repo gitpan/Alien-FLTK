@@ -1,9 +1,10 @@
-Version 0.XXXXX | In the not too distant future | 65cdda1
+Version 0.06916 | 2009-10-11 05:50:42Z (Sun, 11 Oct 2009) | 335da88
     Resolved Issues/Bug Fixes:
      * lib/header checks (should) now work on Unix
      * configure action /should/ work on Solaris
 
     Internal/Behavioral Changes:
+     * Upgrading to r6916
      * We configure fltk before creating Build script in case we run into
           trouble (typically missing libs on *nix) and need to exit(0) so test
           results in NA
@@ -71,6 +72,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06879_009 $ from git $Rev: b4b6306 $
-$Date: 2009-10-10 15:25:46Z (Sat, 10 Oct 2009) $
-$Url: http://github.com/sanko/alien-fltk/raw/b4b63067195e3ef912aa7b4dce19541c04b06c1f/Changes $
+$Ver: 0.06916 $ from git $Rev: 335da88 $
+$Date: 2009-10-11 05:50:42Z (Sun, 11 Oct 2009) $
+$Url: http://github.com/sanko/alien-fltk/raw/335da8804825ef8f54feaa7d2124009fd03a55db/Changes $
