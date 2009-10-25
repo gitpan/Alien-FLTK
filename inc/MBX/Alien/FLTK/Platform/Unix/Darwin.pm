@@ -1,10 +1,10 @@
-package MBX::Alien::FLTK::Platform::Darwin;
+package MBX::Alien::FLTK::Platform::Unix::Darwin;
 {
     use strict;
     use warnings;
     use Carp qw[];
     use Config qw[%Config];
-    use lib qw[.. ../../../..];
+    use lib qw[.. ../../../../..];
     use MBX::Alien::FLTK::Utility
         qw[_o _a _dir _rel _abs find_h find_lib can_run];
     use MBX::Alien::FLTK;
@@ -51,6 +51,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Darwin.pm d9bb897 2009-10-10 16:13:33Z sanko@cpan.org $
+=for git $Id: Darwin.pm a97e5a4 2009-10-25 14:34:56Z sanko@cpan.org $
 
 =cut

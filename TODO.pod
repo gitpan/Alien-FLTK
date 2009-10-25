@@ -7,10 +7,7 @@ Alien::FLTK::Todo - TODO list for Perl module Alien::FLTK
 
 =over
 
-=item * X11 dev packages are required for installation on X11-based systems.
-
-The fact that most systems (particularly CPAN Tester boxes) are missing these
-is annoying.
+=item * None yet.
 
 =back
 
@@ -40,6 +37,6 @@ CPAN ID: SANKO
 
 Copyright (C) 2009 by Sanko Robinson E<lt>sanko@cpan.orgE<gt>
 
-=for git $Id: TODO.pod 82d9a05 2009-10-08 03:13:05Z sanko@cpan.org $ for got=
+=for git $Id: TODO.pod eb7c1c0 2009-10-25 14:42:59Z sanko@cpan.org $ for got=
 
 =cut

@@ -12,43 +12,38 @@ package Alien::FLTK;
     close DATA;
     sub new { return bless \$|, shift; }
     sub config { return $_config; }
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6916; our $UNSTABLE_RELEASE = 0; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6921; our $UNSTABLE_RELEASE = 0; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
     sub branch   { return $_config->{'fltk_branch'} }
 
     sub include_path {
         my ($self) = @_;
-        my @include = map { -d $_ ? $_ : () } (
-                                  rel2abs(
-                                      catdir(qw[blib arch Alien FLTK include],
-                                             'fltk-' . $self->branch
-                                      )
-                                  ),
-                                  rel2abs(catdir(dirname(rel2abs(__FILE__)),
-                                                 qw[FLTK include],
-                                                 'fltk-' . $self->branch
-                                          )
-                                  )
-        );
-        return $include[0];
+        for my $path (catdir(qw[.. .. blib arch Alien FLTK]),
+                      catdir(qw[. blib arch Alien FLTK]),
+                      catdir(qw[Alien FLTK]))
+        {   foreach my $inc (@INC) {
+                next unless defined $inc and !ref $inc;
+                my $dir = rel2abs(
+                     catdir($inc, $path, 'include', 'fltk-' . $self->branch));
+                return $dir if -d $dir && -r $dir;
+            }
+        }
+        return undef;
     }
 
     sub library_path {
         my ($self) = @_;
-        my @libs = map { -d $_ ? $_ : () } (
-                                     rel2abs(
-                                         catdir(qw[blib arch Alien FLTK libs],
-                                                'fltk-' . $self->branch
-                                         )
-                                     ),
-                                     rel2abs(
-                                            catdir(dirname(rel2abs(__FILE__)),
-                                                   qw[FLTK libs],
-                                                   'fltk-' . $self->branch
-                                            )
-                                     )
-        );
-        return $libs[0];
+        for my $path (catdir(qw[.. .. blib arch Alien FLTK]),
+                      catdir(qw[. blib arch Alien FLTK]),
+                      catdir(qw[Alien FLTK]))
+        {   foreach my $inc (@INC) {
+                next unless defined $inc and !ref $inc;
+                my $dir = rel2abs(
+                        catdir($inc, $path, 'libs', 'fltk-' . $self->branch));
+                return $dir if -d $dir && -r $dir;
+            }
+        }
+        return undef;
     }
 
     sub cflags {
@@ -384,9 +379,8 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 335da88 2009-10-11 05:50:42Z sanko@cpan.org $
+=for git $Id: FLTK.pm 1e6c45f 2009-10-25 14:38:13Z sanko@cpan.org $
 
 =cut
-
 __DATA__
 do{ my $x = { }; $x; }

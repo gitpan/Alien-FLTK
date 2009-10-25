@@ -1,3 +1,10 @@
+Version 0.06921 | 2009-10-25 14:42:59Z (Sun, 25 Oct 2009) | eb7c1c0
+
+    Internal/Behavioral Changes:
+     * Upgrading to r6921
+     * include_path() and library_path() methods are (hopefully) less flimsey
+     * Slightly better platform handling
+
 Version 0.06916 | 2009-10-11 05:50:42Z (Sun, 11 Oct 2009) | 335da88
     Resolved Issues/Bug Fixes:
      * lib/header checks (should) now work on Unix
@@ -72,6 +79,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06916 $ from git $Rev: 335da88 $
-$Date: 2009-10-11 05:50:42Z (Sun, 11 Oct 2009) $
-$Url: http://github.com/sanko/alien-fltk/raw/335da8804825ef8f54feaa7d2124009fd03a55db/Changes $
+$Ver: 0.06921 $ from git $Rev: 1e6c45f $
+$Date: 2009-10-25 14:38:13Z (Sun, 25 Oct 2009) $
+$Url: http://github.com/sanko/alien-fltk/raw/1e6c45fe5506218eafe35665a8d38b6484615878/Changes $
