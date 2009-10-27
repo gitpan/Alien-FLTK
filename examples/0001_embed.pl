@@ -136,8 +136,11 @@ int main( int argc, char **argv, char **env ) {
 *
 */
 
-my $obj = $CC->compile(source               => $source,
-                       extra_compiler_flags => $AF->cxxflags());
+my $obj = $CC->compile('C++'                => 1,
+                       source               => $source,
+                       include_dirs         => [$AF->include_dirs()],
+                       extra_compiler_flags => $AF->cxxflags()
+);
 my $exe = $CC->link_executable(
      objects => $obj,
      extra_linker_flags =>
@@ -168,6 +171,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0001_embed.pl 0d33600 2009-10-08 02:59:23Z sanko@cpan.org $
+=for git $Id: 0001_embed.pl 84504b8 2009-10-27 21:17:03Z sanko@cpan.org $
 
 =cut

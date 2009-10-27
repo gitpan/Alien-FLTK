@@ -61,6 +61,7 @@ package MBX::Alien::FLTK::Base;
         }
         my $obj = eval {
             $self->cbuilder->compile(
+                  ($args->{'source'} !~ m[\.c$] ? ('C++' => 1) : ()),
                   source => $args->{'source'},
                   ($args->{'include_dirs'}
                    ? (include_dirs => $args->{'include_dirs'})
@@ -187,6 +188,7 @@ package MBX::Alien::FLTK::Base;
                                    : ' -lfltk2 '
                      )
         );
+        $self->notes('_a'       => $Config{'_a'});
         $self->notes('cxxflags' => ' ');
         $self->notes('GL'       => ' ');
         $self->notes(
@@ -275,9 +277,6 @@ package MBX::Alien::FLTK::Base;
                 HAVE_XINERAMA        => 0    # 1.3.x
             }
         );
-        {
-            $self->notes('include_dirs')->{_abs($self->fltk_dir())}++;
-        }
         {
             print 'Locating library archiver... ';
             my $ar = can_run('ar');

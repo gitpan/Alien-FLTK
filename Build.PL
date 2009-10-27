@@ -36,8 +36,8 @@ my $mb = $class->new(
         'File::Temp'         => 0,
         'Test::More'         => 0.88,
         'Module::Build'      => 0.35,
-        'ExtUtils::CBuilder' => 0.260301,
-        perl                 => '5.8.0',
+        'ExtUtils::CBuilder' => 0.26_05,
+        perl                 => 5.008000,
         (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
          : ()
         )
@@ -55,8 +55,8 @@ my $mb = $class->new(
                        'File::Temp'         => 0,
                        'Test::More'         => 0.88,
                        'Module::Build'      => 0.35,
-                       'ExtUtils::CBuilder' => 0.260301,
-                       perl                 => '5.8.0',
+                       'ExtUtils::CBuilder' => 0.26_05,
+                       perl                 => 5.008000,
                        (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
                         : ()
                        )
@@ -85,11 +85,9 @@ my $mb = $class->new(
 );
 
 #
-$mb->quiet(1);    # Don't print while looking for compiler
 print "Checking for a functioning C++ compiler...\n";
-if ($mb->cbuilder->have_compiler()) { print "Looks good\n\n" }
+if ($mb->cbuilder->have_cplusplus()) { print "Looks good\n\n" }
 else { print "fail\n* No compiler found. Exiting.\n"; exit 0 }
-$mb->quiet(0);    # You can get noisy again.
 
 #$mb->notes(use_cairo => 0);           # TODO - MacOS
 #$mb->notes(use_x     => 0);           # TODO - find_lib
@@ -171,6 +169,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL a3977c6 2009-10-11 05:45:47Z sanko@cpan.org $
+=for git $Id: Build.PL df444f0 2009-10-27 21:48:43Z sanko@cpan.org $
 
 =cut

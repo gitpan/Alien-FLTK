@@ -88,8 +88,7 @@ int main ( ) {
                                           }
                         )
                         )
-                    {   $self->notes(  'cxxflags' => $self->notes('cxxflags')
-                                     . " -I$incdir ");
+                    {   $self->notes('include_dirs')->{_abs($incdir)}++;
                         $self->notes('ldflags' => " -L$libdir -lX11 "
                                      . $self->notes('ldflags'));
                         $self->notes('can_has_x11', 1);
@@ -125,9 +124,7 @@ If I'm just missing something... patches welcome.
                                         }
                             )
                             )
-                        {   $self->notes(
-                                        'cxxflags' => $self->notes('cxxflags')
-                                            . " -I$incdir ");
+                        {   $self->notes('include_dirs')->{_abs($incdir)}++;
                             $self->notes('ldflags' => " -L$libdir -lXcursor  "
                                          . $self->notes('ldflags'));
                             $self->notes('config')->{'USE_XCURSOR'} = 1;
@@ -165,8 +162,7 @@ x-dev, and libxcursor-dev. If I'm just missing something... patches welcome.
                                           }
                         )
                         )
-                    {   $self->notes(  'cxxflags' => $self->notes('cxxflags')
-                                     . " -I$incdir ");
+                    {   $self->notes('include_dirs')->{_abs($incdir)}++;
                         $self->notes('ldflags' => " -L$libdir -lXext -lXi "
                                      . $self->notes('ldflags'));
                         $Xi_okay = 1;
@@ -368,6 +364,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Unix.pm 126d9d5 2009-10-10 15:09:55Z sanko@cpan.org $
+=for git $Id: Unix.pm 84504b8 2009-10-27 21:17:03Z sanko@cpan.org $
 
 =cut

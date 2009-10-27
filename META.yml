@@ -1,6 +1,6 @@
 ---
 name: Alien-FLTK
-version: 0.06921
+version: 0.06921_001
 author:
   - 'Sanko Robinson <sanko@cpan.org>'
 abstract: Installs libraries for the (experimental) 2.0.x branch of the FLTK GUI toolkit
@@ -16,7 +16,7 @@ build_requires:
   Carp: 0
   Config: 0
   Cwd: 0
-  ExtUtils::CBuilder: 0.260301
+  ExtUtils::CBuilder: 0.2605
   File::Basename: 0
   File::Fetch: 0
   File::Find: 0
@@ -26,13 +26,13 @@ build_requires:
   Module::Build: 0.35
   Test::More: 0.88
   base: 0
-  perl: v5.8.0
+  perl: 5.008
 requires:
   Archive::Extract: 0
   Carp: 0
   Config: 0
   Cwd: 0
-  ExtUtils::CBuilder: 0.260301
+  ExtUtils::CBuilder: 0.2605
   File::Basename: 0
   File::Fetch: 0
   File::Find: 0
@@ -42,13 +42,13 @@ requires:
   Module::Build: 0.35
   Test::More: 0.88
   base: 0
-  perl: v5.8.0
+  perl: 5.008
 configure_requires:
   Module::Build: 0.35
 provides:
   Alien::FLTK:
     file: lib/Alien/FLTK.pm
-    version: 0.06921
+    version: 0.06921_001
 no_index:
   directory:
     - t

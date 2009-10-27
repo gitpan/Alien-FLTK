@@ -2,22 +2,20 @@ package Alien::FLTK;
 {
     use strict;
     use warnings;
-    use Config qw[%Config];
     use File::Spec::Functions qw[catdir rel2abs canonpath];
-    use File::Basename;
-    use File::Find qw[find];
     my $_config = eval do { local $/; <DATA> }
         or warn
         "Couldn't load Alien::FLTK configuration data: $@\n Using defaults";
     close DATA;
     sub new { return bless \$|, shift; }
-    sub config { return $_config; }
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6921; our $UNSTABLE_RELEASE = 0; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    sub config { return $_[1] ? $_config->{$_[1]} : %$_config; }
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6921; our $UNSTABLE_RELEASE = 1; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
     sub branch   { return $_config->{'fltk_branch'} }
 
-    sub include_path {
+    sub include_dirs {
         my ($self) = @_;
+        my @return = keys %{$self->config('include_dirs')};
         for my $path (catdir(qw[.. .. blib arch Alien FLTK]),
                       catdir(qw[. blib arch Alien FLTK]),
                       catdir(qw[Alien FLTK]))
@@ -25,7 +23,7 @@ package Alien::FLTK;
                 next unless defined $inc and !ref $inc;
                 my $dir = rel2abs(
                      catdir($inc, $path, 'include', 'fltk-' . $self->branch));
-                return $dir if -d $dir && -r $dir;
+                return ($dir, @return) if -d $dir && -r $dir;
             }
         }
         return undef;
@@ -47,7 +45,7 @@ package Alien::FLTK;
     }
 
     sub cflags {
-        return $_config->{'cxxflags'} . ' -I' . shift->include_path();
+        return $_config->{'cxxflags'};
     }
     sub cxxflags { return shift->cflags() . ' -Wno-non-virtual-dtor'; }
 
@@ -58,7 +56,7 @@ package Alien::FLTK;
         my $libdir = shift->library_path();
 
         # Calculate needed libraries
-        my $SHAREDSUFFIX = $Config{'_a'};
+        my $SHAREDSUFFIX = $self->config('_a');
         my $LDSTATIC     = sprintf '-L%s %s/libfltk%s%s %s',
             $libdir, $libdir, ($self->branch eq '1.3.x' ? '' : '2'),
             $SHAREDSUFFIX, $_config->{'ldflags'};
@@ -124,8 +122,8 @@ C<2.0.x> branch of the FLTK GUI toolkit.
 
     use Alien::FLTK;
     use ExtUtils::CBuilder;
-    my $CC     = ExtUtils::CBuilder->new();
     my $AF     = Alien::FLTK->new();
+    my $CC     = ExtUtils::CBuilder->new();
     my $source = 'hello_world.cxx';
     open(my $FH, '>', $source) || die '...';
     syswrite($FH, <<'') || die '...'; close $FH;
@@ -146,12 +144,13 @@ C<2.0.x> branch of the FLTK GUI toolkit.
         return run();
       }
 
-    my $obj = $CC->compile(source               => $source,
-                           extra_compiler_flags => $AF->cxxflags());
-    my $exe = $CC->link_executable(
-                                  objects            => $obj,
-                                  extra_linker_flags => $AF->ldflags()
+    my $obj = $CC->compile('C++'                => 1,
+                           source               => $source,
+                           include_dirs         => [$AF->include_dirs()],
+                           extra_compiler_flags => $AF->cxxflags()
     );
+    my $exe = $CC->link_executable(objects            => $obj,
+                                   extra_linker_flags => $AF->ldflags());
     print system('./' . $exe) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $source, $obj, $exe; }
 
@@ -168,15 +167,16 @@ create objects with the C<new> constructor.
 After creating a new L<Alien::FLTK|Alien::FLTK> object, use the following
 methods to gather information:
 
-=head2 C<include_path>
+=head2 C<include_dirs>
 
-    my $include_path = $AF->include_path( );
+    my @include_dirs = $AF->include_dirs( );
 
-Returns the location of the headers installed during the build process.
+Returns a list of the locations of the headers installed during the build
+process and those required for compilation.
 
 =head2 C<library_path>
 
-    my $include_path = $AF->library_path( );
+    my $lib_path = $AF->library_path( );
 
 Returns the location of the private libraries we made and installed
 during the build process.
@@ -379,8 +379,9 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 1e6c45f 2009-10-25 14:38:13Z sanko@cpan.org $
+=for git $Id: FLTK.pm 5e4827b 2009-10-27 21:30:25Z sanko@cpan.org $
 
 =cut
+
 __DATA__
 do{ my $x = { }; $x; }

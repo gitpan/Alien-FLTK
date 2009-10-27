@@ -65,7 +65,9 @@ int main( int argc, char **argv ) {
 }
 
 my $obj = $CC->compile(source               => $source,
-                       extra_compiler_flags => $AF->cxxflags());
+                       include_dirs         => [$AF->include_dirs()],
+                       extra_compiler_flags => $AF->cxxflags()
+);
 my $exe = $CC->link_executable(objects            => $obj,
                                extra_linker_flags => [$AF->ldflags(qw[gl])]);
 printf system('./' . $exe) ? 'Aww...' : 'Yay! %s bytes', -s $exe;
@@ -93,6 +95,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0002_gl.pl 0d33600 2009-10-08 02:59:23Z sanko@cpan.org $
+=for git $Id: 0002_gl.pl 84504b8 2009-10-27 21:17:03Z sanko@cpan.org $
 
 =cut
