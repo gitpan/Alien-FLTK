@@ -36,7 +36,7 @@ my $mb = $class->new(
         'File::Temp'         => 0,
         'Test::More'         => 0.88,
         'Module::Build'      => 0.35,
-        'ExtUtils::CBuilder' => 0.26_05,
+        'ExtUtils::CBuilder' => '0.26_05',
         perl                 => 5.008000,
         (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
          : ()
@@ -55,7 +55,7 @@ my $mb = $class->new(
                        'File::Temp'         => 0,
                        'Test::More'         => 0.88,
                        'Module::Build'      => 0.35,
-                       'ExtUtils::CBuilder' => 0.26_05,
+                       'ExtUtils::CBuilder' => '0.26_05',
                        perl                 => 5.008000,
                        (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
                         : ()
@@ -169,6 +169,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL df444f0 2009-10-27 21:48:43Z sanko@cpan.org $
+=for git $Id: Build.PL fa1d55f 2009-10-30 21:52:05Z sanko@cpan.org $
 
 =cut

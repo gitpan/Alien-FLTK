@@ -9,7 +9,7 @@ package Alien::FLTK;
     close DATA;
     sub new { return bless \$|, shift; }
     sub config { return $_[1] ? $_config->{$_[1]} : %$_config; }
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6921; our $UNSTABLE_RELEASE = 1; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
+    our $VERSION_BASE = 0; our $FLTK_SVN = 6921; our $UNSTABLE_RELEASE = 2; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
     sub revision { return $FLTK_SVN; }
     sub branch   { return $_config->{'fltk_branch'} }
 
@@ -43,11 +43,8 @@ package Alien::FLTK;
         }
         return undef;
     }
-
-    sub cflags {
-        return $_config->{'cxxflags'};
-    }
-    sub cxxflags { return shift->cflags() . ' -Wno-non-virtual-dtor'; }
+    sub cflags   { return shift->cxxflags(); }
+    sub cxxflags { return $_config->{'cxxflags'}; }
 
     sub ldflags {    # XXX - Cache this
         my ($self, @args) = @_;
@@ -379,7 +376,7 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 5e4827b 2009-10-27 21:30:25Z sanko@cpan.org $
+=for git $Id: FLTK.pm fa1d55f 2009-10-30 21:52:05Z sanko@cpan.org $
 
 =cut
 
