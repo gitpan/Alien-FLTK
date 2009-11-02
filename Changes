@@ -1,4 +1,4 @@
-Version 0.XXXXX | In the not too distant future | fa1d55f
+Version 0.XXXXX | In the not too distant future | 4944114
 
     Internal/Behavioral Changes:
      * cflags() and cxxflags() no longer include list of include directories
@@ -6,9 +6,10 @@ Version 0.XXXXX | In the not too distant future | fa1d55f
           required include directories
      * Internal method config('blah') now returns blah's data in the config
           hash
+     * Compile using Quartz drawing instead of X11 on Apple OS X
 
     Notes:
-     * This is an API-breakin' release
+     * When stable, this will be an API-breakin' release
 
 Version 0.06921 | 2009-10-11 05:50:42Z (Sun, 11 Oct 2009) | 335da88
 
@@ -93,6 +94,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06921_002 $ from git $Rev: fa1d55f $
-$Date: 2009-10-30 21:52:05Z (Fri, 30 Oct 2009) $
+$Ver: 0.06921_003 $ from git $Rev: 4944114 $
+$Date: 2009-11-02 19:12:59Z (Mon, 02 Nov 2009) $
 $Url: http://github.com/sanko/alien-fltk/raw/master/Changes $

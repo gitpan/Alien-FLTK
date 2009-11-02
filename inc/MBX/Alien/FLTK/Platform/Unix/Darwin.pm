@@ -20,6 +20,7 @@ package MBX::Alien::FLTK::Platform::Unix::Darwin;
         # Asssumed true since this is *nix
         print "have pthread... yes (assumed)\n";
         $self->notes('config')->{'HAVE_PTHREAD'} = 1;
+        $self->notes('config')->{'USE_QUARTZ'} = 1; # Alpha
         $self->notes(
                ldflags => ' -framework Carbon -framework ApplicationServices '
                    . $self->notes('ldflags'));
@@ -51,6 +52,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Darwin.pm a97e5a4 2009-10-25 14:34:56Z sanko@cpan.org $
+=for git $Id: Darwin.pm 4944114 2009-11-02 19:12:59Z sanko@cpan.org $
 
 =cut
