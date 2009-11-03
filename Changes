@@ -1,4 +1,4 @@
-Version 0.XXXXX | In the not too distant future | 4944114
+Version 0.XXXXX | In the not too distant future | 88da95e
 
     Internal/Behavioral Changes:
      * cflags() and cxxflags() no longer include list of include directories
@@ -94,6 +94,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.06921_003 $ from git $Rev: 4944114 $
-$Date: 2009-11-02 19:12:59Z (Mon, 02 Nov 2009) $
+$Ver: 0.06921_004 $ from git $Rev: 88da95e $
+$Date: 2009-11-03 00:37:12Z (Tue, 03 Nov 2009) $
 $Url: http://github.com/sanko/alien-fltk/raw/master/Changes $

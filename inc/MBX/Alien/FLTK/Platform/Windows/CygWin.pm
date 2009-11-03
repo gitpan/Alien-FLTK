@@ -1,4 +1,4 @@
-package MBX::Alien::FLTK::Platform::Unix::Darwin;
+package MBX::Alien::FLTK::Platform::Windows::CygWin;
 {
     use strict;
     use warnings;
@@ -8,23 +8,34 @@ package MBX::Alien::FLTK::Platform::Unix::Darwin;
     use MBX::Alien::FLTK::Utility
         qw[_o _a _dir _rel _abs find_h find_lib can_run];
     use MBX::Alien::FLTK;
-    use base 'MBX::Alien::FLTK::Platform::Unix';
+    use base 'MBX::Alien::FLTK::Platform::Windows';
     $|++;
 
     sub configure {
         my ($self) = @_;
-        $self->SUPER::configure(qw[no_gl no_x11])
-            || return 0;    # Get basic config data
-        print "Gathering Mac OSX specific configuration data...\n";
+        $self->SUPER::configure() || return 0;    # Get basic config data
+        print "Gathering CygWin specific configuration data...\n";
+        {    # Taken from MBX::Alien::FLTK::Platform::Unix
+            print
+                'Checking whether we have the POSIX compatible scandir() prototype... ';
+            my $obj = $self->compile({code => <<'' });
+#include <dirent.h>
+int func (const char *d, dirent ***list, void *sort) {
+    int n = scandir(d, list, 0, (int(*)(const dirent **, const dirent **))sort);
+}
+int main ( ) {
+    return 0;
+}
 
-        # Asssumed true since this is *nix
-        print "have pthread... yes (assumed)\n";
-        $self->notes('config')->{'HAVE_PTHREAD'} = 1;
-        $self->notes('config')->{'USE_QUARTZ'} = 1; # Alpha
-        $self->notes(
-               ldflags => ' -framework Carbon -framework ApplicationServices '
-                   . $self->notes('ldflags'));
-        $self->notes(GL => ' -framework AGL -framework OpenGL ');
+            if ($obj ? 1 : 0) {
+                print "yes\n";
+                $self->notes('config')->{'HAVE_SCANDIR_POSIX'} = 1;
+            }
+            else {
+                print "no\n";
+                $self->notes('config')->{'HAVE_SCANDIR_POSIX'} = undef;
+            }
+        }
         return 1;
     }
     1;
@@ -52,6 +63,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Darwin.pm f70fb16 2009-11-02 19:42:51Z sanko@cpan.org $
+=for git $Id: CygWin.pm fb39021 2009-11-02 21:07:09Z sanko@cpan.org $
 
 =cut
