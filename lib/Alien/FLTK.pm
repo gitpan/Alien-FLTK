@@ -3,49 +3,40 @@ package Alien::FLTK;
     use strict;
     use warnings;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
-    our $VERSION_BASE = 0; our $FLTK_SVN = 6921; our $UNSTABLE_RELEASE = 4; our $VERSION = sprintf('%d.%05d' . ($UNSTABLE_RELEASE ? '_%03d' : ''), $VERSION_BASE, $FLTK_SVN, $UNSTABLE_RELEASE);
-    my $_config = eval do { local $/; <DATA> }
-        or warn
-        "Couldn't load Alien::FLTK configuration data: $@\n Using defaults";
-    close DATA;
+    use File::ShareDir;
+    use YAML::Tiny;
+    our $BASE = 0; our $SVN = 7008; our $DEV = 1; our $VERSION = sprintf('%d.%05d' . ($DEV ? '_%03d' : ''), $BASE, $SVN, $DEV);
+
+    sub md5 {
+        return {gz  => 'adfc4746c7b2bf7e895612d118ab8f2f',
+                bz2 => '7589b3523045b7c059026de21564e68d'
+        };
+    }
+    my ($basedir)
+        = (grep { -d $_ && -f catdir($_, 'config.yml') } map { rel2abs($_) } (
+                eval { File::ShareDir::dist_dir('Alien-FLTK') }, '../share/',
+                '../../share/'
+           )
+        );
+    my $_config = do {
+        my $yaml = YAML::Tiny->read(catdir($basedir, 'config.yml'));
+        warn 'Failed to load Alien::FLTK config: ' . YAML::Tiny->errstr()
+            if !$yaml;
+        $yaml ? $yaml->[0] : {};
+    };
     sub new { return bless \$|, shift; }
     sub config   { return $_config; }
-    sub revision { return $FLTK_SVN; }
-    sub branch   { return $_config->{'fltk_branch'} }
+    sub revision { return $SVN; }
+    sub branch   { return $_config->{'branch'} }
 
     sub include_dirs {
         my ($self) = @_;
-        my @return = keys %{
-              $self->config->{'include_dirs'}
-            ? $self->config->{'include_dirs'}
-            : ()
-            };
-        for my $path (catdir(qw[.. .. blib arch Alien FLTK]),
-                      catdir(qw[. blib arch Alien FLTK]),
-                      catdir(qw[Alien FLTK]))
-        {   foreach my $inc (@INC) {
-                next unless defined $inc and !ref $inc;
-                my $dir = rel2abs(
-                     catdir($inc, $path, 'include', 'fltk-' . $self->branch));
-                return ($dir, @return) if -d $dir && -r $dir;
-            }
-        }
-        return undef;
+        return canonpath($basedir . '/include');
     }
 
     sub library_path {
         my ($self) = @_;
-        for my $path (catdir(qw[.. .. blib arch Alien FLTK]),
-                      catdir(qw[. blib arch Alien FLTK]),
-                      catdir(qw[Alien FLTK]))
-        {   foreach my $inc (@INC) {
-                next unless defined $inc and !ref $inc;
-                my $dir = rel2abs(
-                        catdir($inc, $path, 'libs', 'fltk-' . $self->branch));
-                return $dir if -d $dir && -r $dir;
-            }
-        }
-        return undef;
+        return canonpath($basedir . '/libs');
     }
     sub cflags { return shift->cxxflags(); }
 
@@ -97,11 +88,11 @@ package Alien::FLTK;
                 ($self->branch eq '1.3.x' ? '' : '2'),
                 $SHAREDSUFFIX;
         }
-        if ((grep {m[images]} @args) && $self->config->{'image_flags'}) {
-            $LDFLAGS  = $self->config->{'image_flags'} . " $LDFLAGS";
+        if ((grep {m[images]} @args) && $self->config->{'ldflags_image'}) {
+            $LDFLAGS  = $self->config->{'ldflags_image'} . " $LDFLAGS";
             $LDSTATIC = sprintf '%s/libfltk%s_images%s %s %s',
                 $libdir, ($self->branch eq '1.3.x' ? '' : '2'),
-                $SHAREDSUFFIX, $LDSTATIC, $self->config->{'image_flags'};
+                $SHAREDSUFFIX, $LDSTATIC, $self->config->{'ldflags_image'};
         }
         return (
              ((grep {m[static]} @args) ? $LDSTATIC : $LDFLAGS) . ' -lsupc++');
@@ -126,44 +117,42 @@ Alien::FLTK - Build and use the Fast Light Toolkit binaries
 
 =head1 Description
 
-This distribution builds and installs libraries for the (experimental)
-C<2.0.x> branch of the FLTK GUI toolkit.
+This distribution builds and installs libraries for the (stable) C<1.3.x>
+branch of the FLTK GUI toolkit.
 
 =head1 Synopsis
 
     use Alien::FLTK;
     use ExtUtils::CBuilder;
-    my $AF     = Alien::FLTK->new();
-    my $CC     = ExtUtils::CBuilder->new();
-    my $source = 'hello_world.cxx';
-    open(my $FH, '>', $source) || die '...';
+    my $AF  = Alien::FLTK->new();
+    my $CC  = ExtUtils::CBuilder->new();
+    my $SRC = 'hello_world.cxx';
+    open(my $FH, '>', $SRC) || die '...';
     syswrite($FH, <<'') || die '...'; close $FH;
-      #include <fltk/Window.h>
-      #include <fltk/Widget.h>
-      #include <fltk/run.h>
-      using namespace fltk;
+      #include <FL/Fl.H>
+      #include <FL/Fl_Window.H>
+      #include <FL/Fl_Box.H>
       int main(int argc, char **argv) {
-        Window *window = new Window(300, 180);
-        window->begin();
-        Widget *box = new Widget(20, 40, 260, 100, "Hello, World!");
-        box->box(UP_BOX);
-        box->labelfont(HELVETICA_BOLD_ITALIC);
+        Fl_Window *window = new Fl_Window(300,180);
+        Fl_Box *box = new Fl_Box(FL_UP_BOX, 20, 40, 260, 100, "Hello, World!");
+        box->labelfont(FL_BOLD + FL_ITALIC);
         box->labelsize(36);
-        box->labeltype(SHADOW_LABEL);
+        box->labeltype(FL_SHADOW_LABEL);
         window->end();
         window->show(argc, argv);
-        return run();
-      }
+        return Fl::run();
+    }
 
-    my $obj = $CC->compile('C++'                => 1,
-                           source               => $source,
+    my $OBJ = $CC->compile('C++'                => 1,
+                           source               => $SRC,
                            include_dirs         => [$AF->include_dirs()],
                            extra_compiler_flags => $AF->cxxflags()
     );
-    my $exe = $CC->link_executable(objects            => $obj,
-                                   extra_linker_flags => $AF->ldflags());
-    print system('./' . $exe) ? 'Aww...' : 'Yay!';
-    END { unlink grep defined, $source, $obj, $exe; }
+    my $EXE =
+        $CC->link_executable(objects            => $OBJ,
+                             extra_linker_flags => $AF->ldflags());
+    print system('./' . $EXE) ? 'Aww...' : 'Yay!';
+    END { unlink grep defined, $SRC, $OBJ, $EXE; }
 
 =head1 Constructor
 
@@ -246,6 +235,16 @@ Include flags to use FLTK's forms compatibility layer.
 
 =back
 
+=head2 C<branch>
+
+    my $revision = $AF->branch( );
+
+Returns the SVN brance of the source L<Alien::FLTK|Alien::FLTK> was built
+with.
+
+Currently, L<Alien::FLTK|Alien::FLTK> defaults to the 2.0.x branch but it is
+capable of building the more stable 1.3.x branch.
+
 =head2 C<revision>
 
     my $revision = $AF->revision( );
@@ -278,7 +277,7 @@ Prerequisites differ by system...
 
 =item Win32
 
-The fltk2 libs and L<Alien::FLTK|Alien::FLTK> both build right out of the box
+The fltk libs and L<Alien::FLTK|Alien::FLTK> both build right out of the box
 with MinGW. Further testing is needed for other setups.
 
 =item X11/*nix
@@ -345,7 +344,8 @@ http://github.com/sanko/alien-fltk/ and you are invited to fork it.
 
 =head2 Examples
 
-Please see the L<Synopsis|/"Synopsis"> and the files in the C</examples/>.
+Please see the L<Synopsis|Alien::FLTK/"Synopsis"> and the files in the
+C</examples/>.
 
 =head2 Bugs
 
@@ -357,7 +357,7 @@ Please see L<Alien::FLTK::Todo|Alien::FLTK::Todo>
 
 =head1 See Also
 
-L<FLTK|FLTK>
+L<FLTK|FLTK>, L<Alien::FLTK2|Alien::FLTK2>
 
 =head1 Acknowledgments
 
@@ -390,8 +390,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 88da95e 2009-11-03 00:37:12Z sanko@cpan.org $
+=for git $Id: FLTK.pm 43b2654 2010-01-18 00:59:18Z sanko@cpan.org $
 
 =cut
-__DATA__
-do{ my $x = { }; $x; }

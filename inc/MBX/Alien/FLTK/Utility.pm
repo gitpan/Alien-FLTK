@@ -1,4 +1,4 @@
-package MBX::Alien::FLTK::Utility;
+package inc::MBX::Alien::FLTK::Utility;
 {
     use strict;
     use warnings;
@@ -8,7 +8,7 @@ package MBX::Alien::FLTK::Utility;
     use File::Find qw[find];
     use Exporter qw[import];
     our @EXPORT_OK
-        = qw[can_run run _o _a _exe _dll find_h find_lib _dir _abs _rel _file _split];
+        = qw[can_run run _o _a _exe _dll find_h find_lib _path _abs _rel _dir _file _split];
 
     sub can_run {    # Snagged from IPC::CMD and trimmed for my use
         my ($prog) = @_;
@@ -58,27 +58,12 @@ package MBX::Alien::FLTK::Utility;
         $file =~ m[^(.*)(?:\..*)$] or return @_;
         return catpath($vol, $dir, ($1 ? $1 : $file) . '.' . $Config{'so'});
     }
-    sub _dir   { File::Spec->catdir(@_) }             # XXX - should be locale
+    sub _path  { File::Spec->catdir(@_) }
     sub _abs   { File::Spec->rel2abs(@_) }
     sub _rel   { File::Spec->abs2rel(@_) }
     sub _file  { File::Basename::fileparse(shift); }
+    sub _dir   { File::Basename::dirname(shift); }
     sub _split { File::Spec->splitpath(@_) }
-
-    sub _find_lib {
-        my ($file, $dir) = @_;
-
-        #$file =~ s[([\+\*\.])][\\$1]g;
-        $file = 'lib' . $file . $Config{'_a'};
-        $dir = join ' ', ($dir || ''), $Config{'libpth'};
-        $dir =~ s|\s+| |g;
-        warn $dir;
-        for my $test (split m[\s+]m, $dir) {
-            warn '    =>' . canonpath($test . '/' . $file) . '<=';
-            die 'Worked!' if -e canonpath($dir . '/' . $file);
-            return canonpath($test) if -e canonpath($dir . '/' . $file);
-        }
-        return;
-    }
 
     sub find_lib {
         my ($find, $dir) = @_;
@@ -100,12 +85,23 @@ package MBX::Alien::FLTK::Utility;
 
     sub find_h {
         my ($file, $dir) = @_;
-        $dir = join ' ', ($dir || ''), $Config{'incpath'}, $Config{'usrinc'};
-        $dir =~ s|\s+| |g;
-        for my $test (split m[\s+]m, $dir) {
-            return canonpath($test) if -e canonpath($test . '/' . $file);
-        }
-        return;
+        no warnings 'File::Find';
+        $dir ||= $Config{'incpath'} . ' ' . $Config{'usrinc'};
+        $dir  = canonpath($dir);
+        $file = canonpath($file);
+        my $h;
+        find(
+            {wanted => sub {
+                 return if !-d $_;
+                 $h = canonpath(rel2abs($_))
+                     if -f _path($_, $file);
+             },
+             no_chdir => 1
+            },
+            split ' ',
+            $dir
+        ) if $dir;
+        return $h;
     }
     1;
 }
@@ -132,6 +128,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Utility.pm 2fbc10d 2009-09-18 03:50:45Z sanko@cpan.org $
+=for git $Id: Utility.pm dfa6aa4 2010-01-16 21:12:51Z sanko@cpan.org $
 
 =cut

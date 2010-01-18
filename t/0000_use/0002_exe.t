@@ -17,19 +17,16 @@ my ($FH, $SRC)
                            CLEANUP => 1
     );
 syswrite($FH, <<'END') || BAIL_OUT("Failed to write to $SRC: $!"); close $FH;
-#include <fltk/Window.h>
-#include <fltk/Widget.h>
-#include <fltk/run.h>
-using namespace fltk;
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/Fl_Box.H>
 
 int main(int argc, char **argv) {
-  Window *window = new Window(300, 180);
-  window->begin();
-  Widget *box = new Widget(20, 40, 260, 100, "Hello, World!");
-  box->box(UP_BOX);
-  box->labelfont(HELVETICA_BOLD_ITALIC);
+  Fl_Window *window = new Fl_Window(300,180);
+  Fl_Box *box = new Fl_Box(FL_UP_BOX, 20, 40, 260, 100, "Hello, World!");
+  box->labelfont(FL_BOLD + FL_ITALIC);
   box->labelsize(36);
-  box->labeltype(SHADOW_LABEL);
+  box->labeltype(FL_SHADOW_LABEL);
   window->end();            /* Showing the window causes the test to fail on
   window->show(argc, argv);    X11 w/o a display. Testing the creation of the
   wait(0.1);                   window and a widget should be enough.
@@ -46,7 +43,7 @@ ok($OBJ, 'Compile with FLTK headers');
 my $EXE =
     $CC->link_executable(objects            => $OBJ,
                          extra_linker_flags => $AF->ldflags());
-ok($EXE,          'Link exe with fltk');
+ok($EXE,          'Link exe with fltk 1.3.x');
 ok(!system($EXE), sprintf 'Run exe');
 unlink $OBJ, $EXE, $SRC;
 
@@ -72,6 +69,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: 0002_exe.t 84504b8 2009-10-27 21:17:03Z sanko@cpan.org $
+=for git $Id: 0002_exe.t 3138bae 2010-01-17 03:55:44Z sanko@cpan.org $
 
 =cut
