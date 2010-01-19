@@ -5,7 +5,7 @@ package Alien::FLTK;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
     use File::ShareDir;
     use YAML::Tiny;
-    our $BASE = 0; our $SVN = 7008; our $DEV = 1; our $VERSION = sprintf('%d.%05d' . ($DEV ? '_%03d' : ''), $BASE, $SVN, $DEV);
+    our $BASE = 0; our $SVN = 7008; our $DEV = 2; our $VERSION = sprintf('%d.%05d' . ($DEV ? '_%03d' : ''), $BASE, $SVN, $DEV);
 
     sub md5 {
         return {gz  => 'adfc4746c7b2bf7e895612d118ab8f2f',
@@ -390,6 +390,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 43b2654 2010-01-18 00:59:18Z sanko@cpan.org $
+=for git $Id: FLTK.pm 6c03764 2010-01-19 18:31:34Z sanko@cpan.org $
 
 =cut

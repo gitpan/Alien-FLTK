@@ -1,4 +1,4 @@
-Version 0.XXXXX | In the not too distant future | d35341b
+Version 0.XXXXX | In the not too distant future | 6c03764
 
     Internal/Behavioral Changes:
      * Alien::FLTK has been split into two projects. See Notes below.
@@ -100,6 +100,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.07008_001 $ from git $Rev: d35341b $
-$Date: 2010-01-18 05:12:22Z (Mon, 18 Jan 2010) $
+$Ver: 0.07008_002 $ from git $Rev: e66ce79 $
+$Date: 2010-01-18 05:23:55Z (Mon, 18 Jan 2010) $
 $Url: http://github.com/sanko/alien-fltk/raw/master/Changes $
