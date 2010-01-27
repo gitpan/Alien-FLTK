@@ -76,12 +76,11 @@ my $mb = $class->new(
         keywords =>
             [qw[Alien FLTK Fast Light Toolkit widget FL GUI UI window 1.3.x]],
         resources => {
-              bugtracker => 'http://github.com/sanko/alien-fltk/issues',
-              ChangeLog =>
-                  'http://github.com/sanko/alien-fltk/commits/master',
-              homepage => 'http://sanko.github.com/fltk-perl/',
-              license => 'http://www.perlfoundation.org/artistic_license_2_0',
-              repository => 'http://github.com/sanko/alien-fltk'
+             bugtracker => 'http://github.com/sanko/alien-fltk/issues',
+             ChangeLog => 'http://github.com/sanko/alien-fltk/commits/master',
+             homepage  => 'http://sanko.github.com/fltk-perl/',
+             license => 'http://www.perlfoundation.org/artistic_license_2_0',
+             repository => 'http://github.com/sanko/alien-fltk'
         }
     },
     needs_compiler => 1,        # adds ExtUtils::CBuilder to build_requires
@@ -100,7 +99,7 @@ $mb->notes(gmtime            => scalar gmtime);
 $mb->notes(threads           => $Config{'useithreads'} ? 1 : 0);
 $mb->notes(snapshot_dir => 'working/snapshot/');    # archive location
 $mb->notes(extract_dir  => 'working/extract/');     # extracted source
-$mb->notes(config_path  => 'share/config.yml');
+$mb->notes(config_yml   => 'share/config.yml');
 #################################### 'Dynamic' values used by build system ###
 $mb->notes(svn => $mb->dist_version =~ m[\.0*(\d+)]);
 $mb->notes(branch                     => '1.3.x');
@@ -110,7 +109,7 @@ $mb->notes(headers_path               => 'FL');
 $mb->notes(ldflags                    => ' -lfltk ');
 $mb->notes(ldflags_image =>
            ' -lfltk_images -lfltk_png -lfltk_z -lfltk_images -lfltk_jpeg ');
-$mb->notes(use_cairo => undef);    # TODO - MacOS
+$mb->notes(use_cairo => undef);                     # TODO - MacOS
 $mb->notes(
     libs_source => {
         fltk => {
@@ -188,10 +187,6 @@ $mb->notes(
     }
 );
 ############################################################## Get to work ###
-for my $action (qw[fetch_fltk extract_fltk configure_fltk write_config_h]) {
-    $mb->depends_on($action);
-    $mb->dispatch('check_errors');
-}
 $mb->create_build_script;
 ##############################################################################
 exit 0;
@@ -254,6 +249,6 @@ Creative Commons Attribution-Share Alike 3.0 License. See
 http://creativecommons.org/licenses/by-sa/3.0/us/legalcode.  For
 clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 
-=for git $Id: Build.PL 6c03764 2010-01-19 18:31:34Z sanko@cpan.org $
+=for git $Id: Build.PL 2d9816c 2010-01-27 20:31:42Z sanko@cpan.org $
 
 =cut
