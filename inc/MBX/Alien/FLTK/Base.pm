@@ -10,21 +10,21 @@ package inc::MBX::Alien::FLTK::Base;
     use base 'Module::Build';
     use lib '../../../../';
     use inc::MBX::Alien::FLTK::Utility
-        qw[_o _a _path _dir _file _rel _abs _exe can_run];
-    use lib _abs('.');
+        qw[_o _a _path _realpath _dir _file _rel _abs _exe _cwd can_run];
+    use lib '.';
 
     sub fltk_dir {
         my ($self, $extra) = @_;
         $self->depends_on('extract_fltk');
-        return
-            _abs(_path($self->notes('extract'),
-                       (      'fltk-'
-                            . $self->notes('branch') . '-r'
-                            . $self->notes('svn')
-                       ),
-                       $extra || ()
-                 )
-            );
+        return (_path($self->base_dir,
+                      $self->notes('extract'),
+                      (      'fltk-'
+                           . $self->notes('branch') . '-r'
+                           . $self->notes('svn')
+                      ),
+                      $extra || ()
+                )
+        );
     }
 
     sub archive {
@@ -48,6 +48,9 @@ package inc::MBX::Alien::FLTK::Base;
         my ($self, $args) = @_;
         local $^W = 0;
         local $self->cbuilder->{'quiet'} = 1;
+
+        #use Data::Dump;
+        #ddx $args;
         my $code = 0;
         if (!$args->{'source'}) {
             (my $FH, $args->{'source'}) = tempfile(
@@ -79,14 +82,14 @@ package inc::MBX::Alien::FLTK::Base;
         };
 
         #unlink $args->{'source'} if $code;
-        return if !$obj;
-        return $obj;
+        return $obj ? $obj : ();
     }
 
     sub link_exe {
         my ($self, $args) = @_;
-        local $^W = 0;
-        local $self->cbuilder->{'quiet'} = 1;
+
+        #local $^W = 0;
+        #local $self->cbuilder->{'quiet'} = 1;
         my $exe = eval {
             $self->cbuilder->link_executable(
                                      objects            => $args->{'objects'},
@@ -101,8 +104,7 @@ package inc::MBX::Alien::FLTK::Base;
                                      )
             );
         };
-        return if !$exe;
-        return $exe;
+        return $exe ? $exe : ();
     }
 
     sub build_exe {
@@ -161,11 +163,264 @@ package inc::MBX::Alien::FLTK::Base;
     # Configure
     sub configure {
         my ($self, $args) = @_;
+        $self->notes('_a'       => $Config{'_a'});
+        $self->notes('ldflags'  => ' ');
+        $self->notes('cxxflags' => ' ');
+        $self->notes('GL'       => ' ');
+        $self->notes(
+            'image_flags' => (
+                $self->notes('branch') eq '1.3.x'
+                ? ' -lfltk_images -lfltk_png -lfltk_z -lfltk_images -lfltk_jpeg '
+                : ' -lfltk2_images -lfltk2_png -lfltk2_z -lfltk2_images -lfltk2_jpeg '
+            )
+        );
+        $self->notes('include_dirs'  => {});
+        $self->notes('library_paths' => {});
+        $self->notes(
+            define => {
+                FLTK_DATADIR => '""',    # unused
+                FLTK_DOCDIR  => '""',    # unused
+                BORDER_WIDTH => 2,       # 1.3
+                WORDS_BIGENDIAN =>
+                    ((unpack('h*', pack('s', 1)) =~ /01/) ? 1 : 0),    # both
+                U16                    => undef,                       # both
+                U32                    => undef,                       # both
+                U64                    => undef,                       # both
+                USE_X11                => undef,                       # both
+                USE_QUARTZ             => undef,                       # both
+                __APPLE_QUARTZ__       => undef,                       # 1.3.x
+                __APPLE_QD__           => undef,                       # 1.3.x
+                USE_COLORMAP           => 1,                           # both
+                USE_X11_MULTITHREADING => 0,                           # 2.0
+                USE_XFT                => 0,                           # both
+                USE_XCURSOR            => undef,
+                USE_CAIRO => ($self->notes('branch') eq '2.0.x' ? 0 : undef)
+                ,                                                      # both
+                USE_CLIPOUT      => 0,
+                USE_XSHM         => 0,
+                HAVE_XDBE        => 0,                                 # both
+                USE_XDBE         => 'HAVE_XDBE',                       # both
+                HAVE_OVERLAY     => 0,                                 # both
+                USE_OVERLAY      => 0,
+                USE_XINERAMA     => 0,
+                USE_MULTIMONITOR => 1,
+                USE_STOCK_BRUSH  => 1,
+                USE_XIM          => 1,
+                HAVE_ICONV       => 0,
+                HAVE_GL => ($self->find_h('GL/gl.h') ? 1 : undef),     # both
+                HAVE_GL_GLU_H => ($self->find_h('GL/glu.h') ? 1 : undef)
+                ,                                                      # both
+                HAVE_GL_OVERLAY           => 'HAVE_OVERLAY',           # both
+                USE_GL_OVERLAY            => 0,                        # 2.0
+                USE_GLEW                  => 0,                        # 2.0
+                HAVE_GLXGETPROCADDRESSARB => undef,                    # 1.3
+                HAVE_DIRENT_H => ($self->find_h('dirent.h') ? 1 : undef),
+                HAVE_STRING_H   => ($self->find_h('string.h')   ? 1 : undef),
+                HAVE_SYS_NDIR_H => ($self->find_h('sys/ndir.h') ? 1 : undef),
+                HAVE_SYS_DIR_H  => ($self->find_h('sys/dir.h')  ? 1 : undef),
+                HAVE_NDIR_H     => ($self->find_h('ndir.h')     ? 1 : undef),
+                HAVE_SCANDIR    => 1,
+                HAVE_SCANDIR_POSIX => undef,
+                HAVE_STRING_H      => ($self->find_h('string.h') ? 1 : undef),
+                HAVE_STRINGS_H   => ($self->find_h('strings.h') ? 1 : undef),
+                HAVE_VSNPRINTF   => 1,
+                HAVE_SNPRINTF    => 1,
+                HAVE_STRCASECMP  => undef,
+                HAVE_STRDUP      => undef,
+                HAVE_STRLCAT     => undef,
+                HAVE_STRLCPY     => undef,
+                HAVE_STRNCASECMP => undef,
+                HAVE_SYS_SELECT_H =>
+                    ($self->find_h('sys/select.h') ? 1 : undef),
+                HAVE_SYS_STDTYPES_H =>
+                    ($self->find_h('sys/stdtypes.h') ? 1 : undef),    # both
+                USE_POLL => 0,                                        # both
+                HAVE_LIBPNG => (
+                    $self->assert_lib(
+                        {   libs    => ['png'],
+                            headers => ['libpng/png.h'],
+                            code =>
+                                'int main ( ) {return png_read_rows( ); return 0;}'
+                        }
+                        ) ? 1 : undef
+                ),
+                HAVE_LIBZ => 0,  # ($self->assert_lib({libs=>['z']})?1:undef),
+                HAVE_LIBJPEG =>
+                    ($self->assert_lib({libs => ['jpeg']}) ? 1 : undef),
+                HAVE_LOCAL_PNG_H => undef,    # ! HAVE_LIBPNG
+                HAVE_PNG_H        => ($self->find_h('png.h') ? 1 : undef),
+                HAVE_LIBPNG_PNG_H => (
+                              $self->assert_lib({headers => ['libpng/png.h']})
+                              ? 1
+                              : undef
+                ),
+                HAVE_LOCAL_JPEG_H =>
+                    ($self->find_h('local/jpeg.h') ? 1 : undef),
+                HAVE_PTHREAD   => ($self->find_lib('pthread') ? 1 : undef),
+                HAVE_PTHREAD_H => ($self->find_h('pthread.h') ? 1 : undef),
+                HAVE_EXCEPTIONS      => undef,
+                HAVE_DLOPEN          => 0,
+                BOXX_OVERLAY_BUGS    => 0,
+                SGI320_BUG           => 0,
+                CLICK_MOVES_FOCUS    => 0,
+                IGNORE_NUMLOCK       => 1,
+                USE_PROGRESSIVE_DRAW => 1,
+                HAVE_XINERAMA        => 0        # 1.3.x
+            }
+        );
+        {    # Both | All platforms | Standard headers/functions
+            my @headers = qw[dirent.h sys/ndir.h sys/dir.h ndir.h];
+        HEADER: for my $header (@headers) {
+                printf 'Checking for %s that defines DIR... ', $header;
+                my $exe = $self->assert_lib(
+                               {headers => [$header], code => sprintf <<'' });
+#include <stdio.h>
+#include <sys/types.h>
+int main ( ) {
+    if ( ( DIR * ) 0 )
+        return 0;
+    printf( "1" );
+    return 0;
+}
+
+                my $define = uc 'HAVE_' . $header;
+                if ($exe) {
+                    print "yes ($header)\n";
+                    $define =~ s|[/\.]|_|g;
+                    $self->notes('define')->{$define} = 1;
+
+                    #$self->notes('cache')->{'header_dirent'} = $header;
+                    last HEADER;
+                }
+                else {
+                    $self->notes('define')->{$define} = undef;
+                    print "no\n";    # But we can pretend...
+                }
+            }
+        }
+
+        #
+        $self->notes('define')->{'HAVE_LOCAL_PNG_H'}
+            = $self->notes('define')->{'HAVE_LIBPNG'} ? undef : 1;
+
+        #
+        {
+            print 'Locating library archiver... ';
+            my $ar = can_run('ar');
+            if (!$ar) {
+                print "Could not find the library archiver, aborting.\n";
+                exit 0;
+            }
+            $ar .= ' cr' . (can_run('ranlib') ? 's' : '');
+            $self->notes(AR => $ar);
+            print "$ar\n";
+        }
+        {
+            my %sizeof;
+            for my $type (qw[short int long]) {
+                printf 'Checking size of %s... ', $type;
+                my $exe = $self->build_exe({code => <<"" });
+static long int longval () { return (long int) (sizeof ($type)); }
+static unsigned long int ulongval () { return (long int) (sizeof ($type)); }
+#include <stdio.h>
+#include <stdlib.h>
+int main ( ) {
+    if (((long int) (sizeof ($type))) < 0) {
+        long int i = longval ();
+        if (i != ((long int) (sizeof ($type))))
+            return 1;
+        printf ("%ld", i);
+    }
+    else {
+        unsigned long int i = ulongval ();
+        if (i != ((long int) (sizeof ($type))))
+            return 1;
+        printf ("%lu", i);
+    }
+    return 0;
+}
+
+                $sizeof{$type} = $exe ? `$exe` : 0;
+                print "okay\n";
+            }
+
+            #
+            if ($sizeof{'short'} == 2) {
+                $self->notes('define')->{'U16'} = 'unsigned short';
+            }
+            if ($sizeof{'int'} == 4) {
+                $self->notes('define')->{'U32'} = 'unsigned';
+            }
+            else {
+                $self->notes('define')->{'U32'} = 'unsigned long';
+            }
+            if ($sizeof{'int'} == 8) {
+                $self->notes('define')->{'U64'} = 'unsigned';
+            }
+            elsif ($sizeof{'long'} == 8) {
+                $self->notes('define')->{'U64'} = 'unsigned long';
+            }
+            {
+                print
+                    'Checking whether the compiler recognizes bool as a built-in type... ';
+                my $exe = $self->build_exe({code => <<"" });
+#include <stdio.h>
+#include <stdlib.h>
+int f(int  x){printf ("int "); return 1;}
+int f(char x){printf ("char"); return 1;}
+int f(bool x){printf ("bool"); return 1;}
+int main ( ) {
+    bool b = true;
+    return f(b);
+}
+
+                my $type = $exe ? `$exe` : 0;
+                if ($type) { print "yes ($type)\n" }
+                else {
+                    print "no\n";    # But we can pretend...
+                    $self->notes(  'cxxflags' => $self->notes('cxxflags')
+                                 . ' -Dbool=char -Dfalse=0 -Dtrue=1 ');
+                }
+            }
+            {
+                print 'Checking for library containing pow... ';
+                my $_have_pow = '';
+            LIB: for my $lib ('', '-lm') {
+                    my $exe = $self->build_exe(
+                                  {code => <<'', extra_linker_flags => $lib});
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef __cplusplus
+extern "C"
+#endif
+char pow ();
+int main ( ) {
+    printf ("1");
+    return pow ();
+    return 0;
+}
+
+                    if ($exe && `$exe`) {
+                        if   ($lib) { print "$lib\n" }
+                        else        { print "none required\n" }
+                        $self->notes(
+                             'ldflags' => $self->notes('ldflags') . " $lib ");
+                        $_have_pow = 1;
+                        last LIB;
+                    }
+                }
+                if (!$_have_pow) {
+                    print "FAIL!\n";    # XXX - quit
+                }
+            }
+
+=pod oldversion
+
         $self->notes('define'        => {});
         $self->notes('cache'         => {});
         $self->notes('_a'            => $Config{'_a'});
         $self->notes('cxxflags'      => ' ');
-        $self->notes('GL'            => ' ');
+        $self->notes('ldflags'       => ' ');
         $self->notes('include_dirs'  => {});
         $self->notes('library_paths' => {});
 
@@ -357,7 +612,7 @@ int main ( ) {
 }
 
                 print "yes\n";
-                $self->notes('define')->{'HAVE_POSIX'} = 1;
+                $self->notes('define')->{'HAVE_SCANDIR'} = 1;
             }
             else { print "no\n" }
         }
@@ -382,80 +637,6 @@ int main ( ) {
                 $self->notes('define')->{'HAVE_SCANDIR_POSIX'} = 1;
             }
             else { print "no\n" }
-        }
-        {
-            print "Checking string functions...\n";
-            if (($self->notes('os') =~ m[^hpux$]i)
-                && $self->notes('os_ver') == 1020)
-            {   print
-                    "\nNot using built-in snprintf function because you are running HP-UX 10.20\n";
-                $self->notes('define')->{'HAVE_SNPRINTF'} = undef;
-                print
-                    "\nNot using built-in vnprintf function because you are running HP-UX 10.20\n";
-                $self->notes('define')->{'HAVE_VNPRINTF'} = undef;
-            }
-            elsif (($self->notes('os') =~ m[^dec_osf$]i)
-                   && $self->notes('os_ver') == 40)
-            {   print
-                    "\nNot using built-in snprintf function because you are running Tru64 4.0.\n";
-                $self->notes('define')->{'HAVE_SNPRINTF'} = undef;
-                print
-                    "\nNot using built-in vnprintf function because you are running Tru64 4.0.\n";
-                $self->notes('define')->{'HAVE_VNPRINTF'} = undef;
-            }
-        }
-        {
-            my %functions = (
-                strdup      => 'HAVE_STRDUP',
-                strcasecmp  => 'HAVE_STRCASECMP',
-                strncasecmp => 'HAVE_STRNCASECMP',
-                strlcat     => 'HAVE_STRLCRT',
-
-                #strlcpy     => 'HAVE_STRLCPY'
-            );
-            for my $func (keys %functions) {
-                printf 'Checking for %s... ', $func;
-                my $obj = $self->compile({code => <<""});
-/* Define $func to an innocuous variant, in case <limits.h> declares $func.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define $func innocuous_$func
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char $func (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-#undef $func
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char $func ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined __stub_$func || defined __stub___$func
-choke me
-#endif
-int main ( ) {
-    return $func ( );
-    return 0;
-}
-
-                if ($obj) {
-                    print "yes\n";
-                    $self->notes('define')->{$functions{$func}} = 1;
-                }
-                else {
-                    print "no\n";
-                    $self->notes('define')->{$functions{$func}} = undef;
-                }
-            }
         }
         {
             $self->find_h('pthread.h');
@@ -511,7 +692,7 @@ int main ( ) {
             $self->notes('define')->{'BORDER_WIDTH'} = 2;
             print "    USE_COLORMAP = 1\n";
             $self->notes('define')->{'USE_COLORMAP'} = 1;
-            print "    HAVE_GL_OVERLAY = 1\n";
+            print "    HAVE_GL_OVERLAY = HAVE_OVERLAY\n";
             $self->notes('define')->{'HAVE_GL_OVERLAY'} = 'HAVE_OVERLAY';
 
 =todo
@@ -567,18 +748,48 @@ int main ( ) {
 
     sub build_fltk {
         my ($self, $build) = @_;
-        $self->quiet(1);
         $self->notes('libs' => []);
+        if (!chdir $self->base_dir()) {
+            print 'Failed to cd to base directory';
+            exit 0;
+        }
         my $libs = $self->notes('libs_source');
         for my $lib (sort { lc $a cmp lc $b } keys %$libs) {
+            next if $libs->{$lib}{'disabled'};
             print "Building $lib...\n";
+            my $cwd = _abs(_cwd());
             if (!chdir _path($build->fltk_dir(), $libs->{$lib}{'directory'}))
-            {   printf 'Cannot chdir to %s to build %s',
+            {   printf 'Cannot chdir to %s to build %s: %s',
                     _path($build->fltk_dir(), $libs->{$lib}{'directory'}),
-                    $lib;
+                    $lib, $!;
                 exit 0;
             }
             my @obj;
+            my %include_dirs = %{$self->notes('include_dirs')};
+            for my $dir (
+
+                #split(' ', $Config{'incpath'}),
+                $build->fltk_dir(),
+                '..',
+                ($self->notes('include_path_compatability')
+                 ? '../' . $self->notes('include_path_compatability')
+                 : ()
+                    ),
+                (length $self->notes('include_path_compatability')
+                 ? $build->fltk_dir($self->notes('include_path_compatability')
+                     )
+                 : ()
+                    ),
+                $build->fltk_dir(
+                                $self->notes('include_path_images') . '/zlib/'
+                )
+                )
+            {   $include_dirs{_rel(_realpath($dir))}++;
+            }
+
+            #use Data::Dump;
+            #ddx \%include_dirs;
+            #die;
             for my $src (sort { lc $a cmp lc $b } @{$libs->{$lib}{'source'}})
             {   my $obj = _o($src);
                 $obj
@@ -588,23 +799,11 @@ int main ( ) {
                     print "Compiling $src...\n";
                     return
                         $self->compile(
-                          {source       => $src,
-                           include_dirs => [
-                               $Config{'incpath'},
-                               $build->fltk_dir(),
-                               $build->fltk_dir($self->notes('headers_path')),
-                               $build->fltk_dir(
-                                    $self->notes('include_path_compatability')
-                               ),
-                               $build->fltk_dir(
-                                           $self->notes('include_path_images')
-                                               . '/zlib/'
-                               ),
-                               (keys %{$self->notes('include_dirs')})
-                           ],
-                           cxxflags => [$Config{'ccflags'}, '-MD'],
-                           output   => $obj
-                          }
+                                     {source       => $src,
+                                      include_dirs => [keys %include_dirs],
+                                      cxxflags => [$Config{'ccflags'}, '-MD'],
+                                      output   => $obj
+                                     }
                         );
                     }
                     ->();
@@ -612,21 +811,28 @@ int main ( ) {
                     printf 'Failed to compile %s', $src;
                     exit 0;
                 }
-                push @obj, $obj;
+                push @obj, _abs($obj);
+            }
+            if (!chdir $cwd) {
+                printf 'Cannot chdir to %s after building %s: %s',
+                    $cwd, $lib, $!;
+                exit 0;
             }
             my $_lib = _rel($build->fltk_dir('lib/' . _a($lib)));
-            $lib
+            printf 'Archiving %s... ', $lib;
+            $_lib
                 = $build->up_to_date(\@obj, $_lib)
                 ? $_lib
-                : $self->archive({output  => $_lib,
+                : $self->archive({output  => _abs($_lib),
                                   objects => \@obj
                                  }
                 );
-            if (!$lib) {
+            if (!$_lib) {
                 printf 'Failed to create %s library', $lib;
                 exit 0;
             }
-            push @{$self->notes('libs')}, _abs($lib);
+            push @{$self->notes('libs')}, $_lib;
+            print "done\n";
         }
         if (!chdir $build->fltk_dir()) {
             print 'Failed to cd to ' . $self->fltk_dir() . ' to return home';
@@ -638,15 +844,16 @@ int main ( ) {
     # Module::Build actions
     sub ACTION_fetch_fltk {
         my ($self, %args) = @_;
-        $args{'to'} = _abs(
+        $args{'to'} = (
             defined $args{'to'} ? $args{'to'} : $self->notes('snapshot_dir'));
         $args{'ext'}    ||= [qw[gz bz2]];
         $args{'scheme'} ||= [qw[http ftp]];
         {
             my ($file) = grep {-f} map {
-                _abs(sprintf '%s/fltk-%s-r%d.tar.%s',
-                     $args{'to'}, $self->notes('branch'),
-                     $self->notes('svn'), $_)
+                (sprintf '%s/fltk-%s-r%d.tar.%s',
+                 $args{'to'}, $self->notes('branch'),
+                 $self->notes('svn'), $_
+                    )
             } @{$args{'ext'}};
             if (defined $file) {
                 $self->notes('snapshot_path' => $file);
@@ -687,9 +894,12 @@ int main ( ) {
                     if ($archive and -f $archive) {
                         $self->notes('snapshot_mirror_uri'      => $ff->uri);
                         $self->notes('snapshot_mirror_location' => $mirror);
-                        $archive = _abs(sprintf '%s/fltk-%s-r%d.tar.%s',
-                                        $args{'to'}, $self->notes('branch'),
-                                        $self->notes('svn'), $ext);
+                        $archive = (sprintf '%s/fltk-%s-r%d.tar.%s',
+                                    $args{'to'},
+                                    $self->notes('branch'),
+                                    $self->notes('svn'),
+                                    $ext
+                        );
                         $extention = $ext;
                         $dir       = $args{'to'};
                         last MIRROR;
@@ -713,11 +923,10 @@ int main ( ) {
             }
             my $urls = join "\n", @urls;
             $self->_error(
-                    {stage => 'fltk source download',
-                     fatal => 1,
-                     message =>
-                         sprintf
-                         <<'END', _abs($self->notes('snapshot_dir')), $urls});
+                {stage => 'fltk source download',
+                 fatal => 1,
+                 message =>
+                     sprintf <<'END', ($self->notes('snapshot_dir')), $urls});
 Okay, we just failed at life.
 
 If you want, you may manually download a snapshot and place it in
@@ -749,6 +958,7 @@ END
 
     sub ACTION_verify_snapshot {
         my ($self) = @_;
+        return 1 if $self->notes('snapshot_okay');
         require Digest::MD5;
         print 'Checking MD5 hash of archive... ';
         my $archive = $self->notes('snapshot_path');
@@ -763,16 +973,18 @@ END
             );    # XXX - Should I delete the archive and retry?
         }
         binmode($FH);
-        unshift @INC, _abs(_path($self->base_dir, 'lib'));
+        unshift @INC, (_path($self->base_dir, 'lib'));
         if (eval 'require ' . $self->module_name) {
             my $md5 = $self->module_name->_md5;
             if (Digest::MD5->new->addfile($FH)->hexdigest eq $md5->{$ext}) {
                 print "MD5 checksum is okay\n";
+                $self->notes('snapshot_okay' => 'Valid @ ' . time);
                 return 1;
             }
         }
         else {
             print "Cannot find checksum. Hope this works out...\n";
+            $self->notes('snapshot_okay' => 'Pray that it is... @' . time);
             return 1;
         }
         shift @INC;
@@ -800,38 +1012,58 @@ END
         my ($self, %args) = @_;
         $self->depends_on('fetch_fltk');
         $args{'from'} ||= $self->notes('snapshot_path');
-        $args{'to'}   ||= _abs($self->notes('extract_dir'));
-        unshift @INC, _abs(_path($self->base_dir, 'lib'));
-        my $_extracted;
-        if (eval 'require ' . $self->module_name) {
-            my $unique_file = $self->module_name->_unique_file;
-            $_extracted = -f _abs($args{'to'} . sprintf '/fltk-%s-r%d/%s',
-                                  $self->notes('branch'),
-                                  $self->notes('svn'),
-                                  $unique_file
-            ) ? 1 : 0;
+        $args{'to'}   ||= _rel(($self->notes('extract_dir')));
+        unshift @INC, (_path($self->base_dir, 'lib'));
+        eval 'require ' . $self->module_name;
+        my $unique_file = $self->module_name->_unique_file;
+        if (-f ($args{'to'} . sprintf '/fltk-%s-r%d/%s',
+                $self->notes('branch'),
+                $self->notes('svn'),
+                $unique_file
+            )
+            && !$self->notes('timestamp_extracted')
+            )
+        {   warn sprintf
+                "Odd... Found extracted snapshot at %s... (unique file %s located)\n",
+                _rel($args{'to'} . sprintf '/fltk-%s-r%d',
+                     $self->notes('branch'),
+                     $self->notes('svn')),
+                _rel($args{'to'} . sprintf '/fltk-%s-r%d/%s',
+                     $self->notes('branch'),
+                     $self->notes('svn'), $unique_file);
+            $self->notes(timestamp_extracted => time);
+            $self->notes('extract'           => $args{'to'});
+            $self->notes('snapshot_path'     => $args{'from'});
+            return 1;
         }
-        elsif (-d _abs($args{'to'} . sprintf '/fltk-%s-r%d',
-                       $self->notes('branch'),
-                       $self->notes('svn')
+        elsif (-d ($args{'to'} . sprintf '/fltk-%s-r%d',
+                   $self->notes('branch'),
+                   $self->notes('svn')
                )
+               && !$self->notes('timestamp_extracted')
             )
         {   $self->notes('extract' => $args{'to'});
-            $_extracted = 1;
-            return 1;    # XXX - what should we do?!?
+            warn sprintf
+                "Strage... found partially extracted snapshot at %s...\n",
+                _rel($args{'to'} . sprintf '/fltk-%s-r%d',
+                     $self->notes('branch'),
+                     $self->notes('svn'));
             require File::Path;
-            printf "Removing existing directory...\n", $args{'to'};
-            File::Path::remove_tree(_abs($args{'to'} . sprintf '/fltk-%s-r%d',
-                                         $self->notes('branch'),
-                                         $self->notes('svn')
+            print 'Removing existing directory... ', $args{'to'};
+            File::Path::remove_tree(($args{'to'} . sprintf '/fltk-%s-r%d',
+                                     $self->notes('branch'),
+                                     $self->notes('svn')
                                     )
             );
+            $self->notes('timestamp_extracted' => undef);
+            print "done\n";
         }
-        if (!$_extracted) {
+        if (!$self->notes('timestamp_extracted')) {
+            printf 'Extracting snapshot from %s to %s... ',
+                _rel($args{'from'}),
+                _rel($args{'to'});
             require Archive::Extract;
             my $ae = Archive::Extract->new(archive => $args{'from'});
-            printf 'Extracting %s to %s... ', _rel($args{'from'}),
-                _rel($args{'to'});
             if (!$ae->extract(to => $args{'to'})) {
                 $self->_error({stage   => 'fltk source extraction',
                                fatal   => 1,
@@ -840,21 +1072,23 @@ END
                 );
             }
             $self->add_to_cleanup($ae->extract_path);
+            $self->notes(timestamp_extracted => time);
+            $self->notes('extract'           => $args{'to'});
+            $self->notes('snapshot_path'     => $args{'from'});
             print "done.\n";
         }
-        $self->notes('extract'       => $args{'to'});
-        $self->notes('snapshot_path' => $args{'from'});
         return 1;
     }
 
     sub ACTION_configure {
         my ($self) = @_;
         $self->depends_on('extract_fltk');
+        if (!$self->notes('timestamp_configure')
 
-        #if (   !$self->notes('define')
-        #    || !-f $self->fltk_dir('config.h'))
-        {
-            print "Gathering configuration data...\n";
+            #   || !$self->notes('define')
+            #|| !-f $self->fltk_dir('config.h')
+            )
+        {   print "Gathering configuration data...\n";
             $self->configure();
             $self->notes(timestamp_configure => time);
         }
@@ -881,12 +1115,6 @@ END
             )
         {   {
                 print 'Creating config.h... ';
-                if (!chdir $self->fltk_dir()) {
-                    print 'Failed to cd to '
-                        . $self->fltk_dir()
-                        . ' to write config.h';
-                    exit 0;
-                }
                 my $config = '';
                 my %config = %{$self->notes('define')};
                 for my $key (
@@ -912,10 +1140,6 @@ END
                 syswrite($CONFIG_H, $config) == length($config)
                     || Carp::confess 'Failed to write config.h';
                 close $CONFIG_H;
-                if (!chdir $self->base_dir()) {
-                    print 'Failed to cd to base directory';
-                    exit 0;
-                }
                 $self->notes(timestamp_config_h => time);
                 print "okay\n";
             }
@@ -932,11 +1156,11 @@ END
         $self->depends_on('configure');
         require Module::Build::YAML;
         printf 'Updating %s config... ', $self->module_name;
-        my $me        = _abs($self->notes('config_yml'));
+        my $me        = ($self->notes('config_yml'));
         my $mode_orig = 0644;
         if (!-d _dir($me)) {
             require File::Path;
-            File::Path::make_path(_dir($me), {verbose => 1});
+            $self->add_to_cleanup(File::Path::make_path(_dir($me)));
         }
         elsif (-d $me) {
             $mode_orig = (stat $me)[2] & 07777;
@@ -968,44 +1192,35 @@ END
         print "okay\n";
     }
 
-    sub ACTION_clear_config {
+    sub ACTION_reset_config {
         my ($self) = @_;
-        my $me = $self->notes('config_yml');
-        return 1 if !-f $me;
+        return if !$self->notes('timestamp_configure');
         printf 'Cleaning %s config... ', $self->module_name();
-        my $mode_orig = (stat $me)[2] & 07777;
-        chmod($mode_orig | 0222, $me);    # Make it writeable
-        unlink $me;
-        print "okay\n";
+        my $yml = $self->notes('config_yml');
+        if (-f $yml) {
+            my $mode_orig = (stat $yml)[2] & 07777;
+            chmod($mode_orig | 0222, $yml);    # Make it writeable
+            unlink $yml;
+        }
+        $self->notes(timestamp_configure => 0);
+        $self->notes(timestamp_extracted => 0);
+        print "done\n";
     }
 
     sub ACTION_build_fltk {
         my ($self) = @_;
         $self->depends_on('write_config_h');
         $self->depends_on('write_config_yml');
-        if (!chdir $self->fltk_dir()) {
-            printf 'Failed to cd to %s to locate libs libs',
-                $self->fltk_dir();
-            exit 0;
-        }
         my @lib = $self->build_fltk($self);
         if (!chdir $self->base_dir()) {
             printf 'Failed to return to %s to copy libs', $self->base_dir();
             exit 0;
         }
-        if (!chdir _path($self->fltk_dir() . '/lib')) {
-            printf 'Failed to cd to %s to copy libs', $self->fltk_dir();
-            exit 0;
-        }
         for my $lib (@{$self->notes('libs')}) {
             $self->copy_if_modified(
-                            from   => $lib,
-                            to_dir => _path($self->base_dir(), qw[share libs])
+                   from => $lib,
+                   to => _path($self->base_dir(), qw[share libs], _file($lib))
             );
-        }
-        if (!chdir $self->base_dir()) {
-            print 'Failed to cd to base directory';
-            exit 0;
         }
         return 1;
     }
@@ -1028,13 +1243,13 @@ END
             printf STDOUT ('*** ' x 15) . "\n"
                 . 'error was encountered during the build process . '
                 . "Please correct it and run Build.PL again.\nExiting...",
-                exit 0;
+                exit defined $error->{'exit'} ? $error->{'exit'} : 0;
         }
     }
 
     sub ACTION_clean {
         my $self = shift;
-        $self->dispatch('clear_config');
+        $self->dispatch('reset_config');
         $self->SUPER::ACTION_clean(@_);
         $self->notes(errors => []);    # Reset fatal and non-fatal errors
     }
@@ -1043,62 +1258,43 @@ END
         # Ganked from Devel::CheckLib
         sub assert_lib {
             my ($self, $args) = @_;
-            my (@libs, @libpaths, @headers, @incpaths);
 
-            # FIXME: these four just SCREAM "refactor" at me
-            @libs = (
-                ref($args->{' lib '})
-                ? @{$args->{
-                        ' lib
-                '
-                        }
-                    }
-                : $args->{' lib '}
-            ) if $args->{' lib '};
-            @libpaths = (ref($args->{' libpath '})
-                         ? @{$args->{' libpath '}}
-                         : $args->{' libpath '}
-            ) if $args->{' libpath '};
-            @headers = (ref($args->{' header '})
-                        ? @{$args->{' header '}}
-                        : $args->{' header '}
-            ) if $args->{' header '};
-            @incpaths = (ref($args->{' incpath '})
-                         ? @{$args->{' incpath '}}
-                         : $args->{' incpath '}
-            ) if $args->{' incpath '};
-            my @missing;
+            # Defaults
+            $args->{'code'}         ||= 'int main( ) { return 0; }';
+            $args->{'include_dirs'} ||= ();
+            $args->{'lib_dirs'}     ||= ();
+            $args->{'headers'}      ||= ();
+            $args->{'libs'}         ||= ();
 
-            # first figure out which headers we can' t find ...
-            for my $header (@headers) {
-                my $exe =
-                    $self->build_exe(
-                    {code =>
-                         "#include <$header>\nint main(void) { return 0; }\n",
-                     include_dirs => \@incpaths,
-                     lib_dirs     => \@libpaths
-                    }
+            #use Data::Dumper;
+            #warn Dumper $args;
+            # first figure out which headers we can' t find...
+            for my $header (@{$args->{'headers'}}) {
+                next
+                    if $self->compile(
+                            {code => "#include <$header>\n" . $args->{'code'},
+                             include_dirs => $args->{'include_dirs'},
+                             lib_dirs     => $args->{'lib_dirs'}
+                            }
                     );
-                if   (defined $exe && -x $exe) { unlink $exe }
-                else                           { push @missing, $header }
+                print "Cannot include $header ";
+                return 0;
             }
 
             # now do each library in turn with no headers
-            for my $lib (@libs) {
-                my $exe =
-                    $self->build_exe(
-                                    {code => "int main(void) { return 0; }\n",
-                                     include_dirs       => \@incpaths,
-                                     lib_dirs           => \@libpaths,
-                                     extra_linker_flags => "-l$lib"
-                                    }
+            for my $lib (@{$args->{'libs'}}) {
+                next
+                    if $self->test_exe(
+                           {code =>
+                                join("\n",
+                                (map {"#include <$_>"} @{$args->{'headers'}}),
+                                $args->{'code'}),
+                            include_dirs       => $args->{'include_dirs'},
+                            lib_dirs           => $args->{'lib_dirs'},
+                            extra_linker_flags => "-l$lib"
+                           }
                     );
-                if   (defined $exe && -x $exe) { unlink $exe }
-                else                           { push @missing, $lib }
-            }
-            my $miss_string = join(q{, }, map {qq{'$_'}} @missing);
-            if (@missing) {
-                warn "Can't link/include $miss_string\n";
+                print "Cannot link $lib ";
                 return 0;
             }
             return 1;
@@ -1107,46 +1303,48 @@ END
         sub find_lib {
             my ($self, $find, $dir) = @_;
             printf 'Looking for lib%s... ', $find;
-            no warnings 'File::Find';
+            require File::Find::Rule;
             $find =~ s[([\+\*\.])][\\$1]g;
             $dir ||= $Config{'libpth'};
             $dir = _path($dir);
-            my $lib;
-            find(
-                sub {
-                    $lib = _path(_abs($File::Find::dir))
-                        if $_ =~ qr[lib$find$Config{'_a'}];
-                },
-                split ' ',
-                $dir
-            ) if $dir;
-            printf "%s\n", defined $lib ? 'found ' . $lib : 'missing';
-            return $lib;
+            my @files
+                = File::Find::Rule->file()
+                ->name('lib' . $find . $Config{'_a'})->maxdepth(1)
+                ->in(split ' ', $dir);
+            printf "%s\n", @files ? 'found ' . (_dir($files[0])) : 'missing';
+            return _path((_dir($files[0])));
         }
 
         sub find_h {
             my ($self, $file, $dir) = @_;
             printf 'Looking for %s... ', $file;
-            no warnings 'File::Find';
+            $dir = join ' ', ($dir || ''), $Config{'incpath'},
+                $Config{'usrinc'};
+            $dir =~ s|\s+| |g;
+            for my $test (split m[\s+]m, $dir) {
+                if (-e _path($test . '/' . $file)) {
+                    printf "found in %s\n", _path($test);
+                    $self->notes('include_dirs')->{_path($test)}++;
+                    return _path($test);
+                }
+            }
+            print "missing\n";
+            return ();
+        }
+
+        sub _find_h {
+            my ($self, $file, $dir) = @_;
+            printf 'Looking for %s... ', $file;
+            require File::Find::Rule;
             $dir ||= $Config{'incpath'} . ' ' . $Config{'usrinc'};
             $dir  = _path($dir);
             $file = _path($file);
-            my $h;
-            find(
-                {wanted => sub {
-                     return if !-d $_;
-                     $h = _path(_abs($_))
-                         if -f _path($_, $file);
-                 },
-                 no_chdir => 1
-                },
-                split ' ',
-                $dir
-            ) if $dir;
-            if (defined $h) {
-                printf "found %s\n", $h;
-                $self->notes('include_dirs')->{$h}++;
-                return $h;
+            my @files = File::Find::Rule->file()->name($file)->maxdepth(1)
+                ->in(split ' ', $dir);
+            if (@files) {
+                printf "found in %s\n", _dir($files[0]);
+                $self->notes('include_dirs')->{_dir($files[0])}++;
+                return _dir($files[0]);
             }
             print "missing\n";
             return ();

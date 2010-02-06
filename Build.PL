@@ -40,7 +40,8 @@ my $mb = $class->new(
         (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
          : ()
         ),
-        'YAML::Tiny' => 0
+        'File::Find::Rule' => 0,
+        'YAML::Tiny'       => 0
     },
     build_requires => {'Archive::Extract'   => 0,
                        base                 => 0,
@@ -62,7 +63,8 @@ my $mb = $class->new(
                        (  ($^O eq 'VMS') ? ('VMS::DCLsym' => 0)
                         : ()
                        ),
-                       'YAML::Tiny' => 0
+                       'File::Find::Rule' => 0,
+                       'YAML::Tiny'       => 0
     },
     add_to_cleanup => [qw[Alien-FLTK-* src/* share/*],
                        map {"*$_"} (
@@ -76,11 +78,11 @@ my $mb = $class->new(
         keywords =>
             [qw[Alien FLTK Fast Light Toolkit widget FL GUI UI window 1.3.x]],
         resources => {
-             bugtracker => 'http://github.com/sanko/alien-fltk/issues',
-             ChangeLog => 'http://github.com/sanko/alien-fltk/commits/master',
-             homepage  => 'http://sanko.github.com/fltk-perl/',
-             license => 'http://www.perlfoundation.org/artistic_license_2_0',
-             repository => 'http://github.com/sanko/alien-fltk'
+            bugtracker => 'http://github.com/sanko/alien-fltk/issues',
+            ChangeLog => 'http://github.com/sanko/alien-fltk/commits/master',
+            homepage  => 'http://sanko.github.com/fltk-perl/',
+            license   => 'http://www.perlfoundation.org/artistic_license_2_0',
+            repository => 'http://github.com/sanko/alien-fltk'
         }
     },
     needs_compiler => 1,        # adds ExtUtils::CBuilder to build_requires
@@ -106,10 +108,7 @@ $mb->notes(branch                     => '1.3.x');
 $mb->notes(include_path_images        => '');
 $mb->notes(include_path_compatability => '');
 $mb->notes(headers_path               => 'FL');
-$mb->notes(ldflags                    => ' -lfltk ');
-$mb->notes(ldflags_image =>
-           ' -lfltk_images -lfltk_png -lfltk_z -lfltk_images -lfltk_jpeg ');
-$mb->notes(use_cairo => undef);                     # TODO - MacOS
+$mb->notes(use_cairo => 0);                         # TODO - MacOS
 $mb->notes(
     libs_source => {
         fltk => {
