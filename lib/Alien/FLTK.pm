@@ -3,7 +3,7 @@ package Alien::FLTK;
     use strict;
     use warnings;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
- our $BASE = 0; our $SVN = 7008; our $DEV = 15; our $VERSION = sprintf('%d.%05d' . ($DEV ? '_%03d' : ''), $BASE, $SVN, $DEV);
+    our $BASE = 0; our $SVN = 7008; our $DEV = -16; our $VERSION = sprintf('%d.%05d' . ($DEV ? (($DEV < 0 ? '' : '_') . '%03d') : ('')), $BASE, $SVN, abs $DEV);
 
     sub _md5 {
         return {gz  => 'adfc4746c7b2bf7e895612d118ab8f2f',
@@ -20,8 +20,8 @@ package Alien::FLTK;
             ($self->{'basedir'})
                 = (grep { -d $_ && -f catdir($_, 'config.yml') }
                        map { rel2abs($_) } (
-                             eval { File::ShareDir::dist_dir('Alien-FLTK') },
-                             'share', '../share', '../../share'
+                              eval { File::ShareDir::dist_dir('Alien-FLTK') },
+                              'share', '../share', '../../share'
                        )
                 );
         }
@@ -73,7 +73,7 @@ package Alien::FLTK;
         my $LDSTATIC = sprintf '-L%s %s/libfltk%s %s', $libdir, $libdir,
             $SHAREDSUFFIX,
             ($self->config->{'ldflags'} ? $self->config->{'ldflags'} : '');
-        my $LDFLAGS = "-L$libdir -lfltk "
+        my $LDFLAGS = '-lfltk'
             . ($self->config->{'ldflags'} ? $self->config->{'ldflags'} : '');
         my $LIBS = sprintf '%s/libfltk%s', $libdir, $SHAREDSUFFIX;
         if (grep {m[forms]} @args) {
@@ -98,8 +98,9 @@ package Alien::FLTK;
             $LDSTATIC = sprintf '%s/libfltk_images%s %s %s',
                 $libdir, $SHAREDSUFFIX, $img_libs, $LDSTATIC;
         }
-        return (
-             ((grep {m[static]} @args) ? $LDSTATIC : $LDFLAGS) . ' -lsupc++');
+        return (  "-L$libdir "
+                . ((grep {m[static]} @args) ? $LDSTATIC : $LDFLAGS)
+                . ' -lsupc++');
     }
 
     sub capabilities {
@@ -117,7 +118,7 @@ package Alien::FLTK;
 
 =head1 NAME
 
-Alien::FLTK - Build and use the Fast Light Toolkit binaries
+Alien::FLTK - Build and use stable C<1.3.x> branch of the Fast Light Toolkit
 
 =head1 Description
 
@@ -394,6 +395,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm cbdb5a4 2010-01-27 20:31:08Z sanko@cpan.org $
+=for git $Id: FLTK.pm 59c0964 2010-02-09 21:01:29Z sanko@cpan.org $
 
 =cut
