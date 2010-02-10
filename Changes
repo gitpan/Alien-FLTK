@@ -1,3 +1,8 @@
+Version 0.07008017 | 2010-02-10 07:18:40Z (Wed, 10 Feb 2010) | 364f273
+
+     Resolved Issues/Bug Fixes:
+     * X11-related libs are now linked in the correct, working order (I hope)
+
 Version 0.07008016 | 2010-02-09 21:35:54Z (Tue, 09 Feb 2010) | 37735bc
 
     Internal/Behavioral Changes:
@@ -100,6 +105,6 @@ _ -.-. .... .- -. --. . ... _________________________________________
 For more information, see the commit log:
     http://github.com/sanko/alien-fltk/commits/master
 
-$Ver: 0.07008016 $ from git $Rev: cbdb5a4 $
-$Date: 2010-01-27 20:31:08Z (Wed, 27 Jan 2010) $
+$Ver: 0.07008017 $ from git $Rev: 364f273 $
+$Date: 2010-02-10 07:18:40Z (Wed, 10 Feb 2010) $
 $Url: http://github.com/sanko/alien-fltk/raw/master/Changes $
