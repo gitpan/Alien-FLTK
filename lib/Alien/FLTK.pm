@@ -3,11 +3,11 @@ package Alien::FLTK;
     use strict;
     use warnings;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
-    our $BASE = 0; our $SVN = 7008; our $DEV = -17; our $VERSION = sprintf('%d.%05d' . ($DEV ? (($DEV < 0 ? '' : '_') . '%03d') : ('')), $BASE, $SVN, abs $DEV);
+    our $BASE = 0; our $SVN = 7063; our $DEV = 0; our $VERSION = sprintf('%d.%05d' . ($DEV ? (($DEV < 0 ? '' : '_') . '%03d') : ('')), $BASE, $SVN, abs $DEV);
 
     sub _md5 {
-        return {gz  => 'adfc4746c7b2bf7e895612d118ab8f2f',
-                bz2 => '7589b3523045b7c059026de21564e68d'
+        return {gz  => 'ed4c2462a8a2210dcc78dabf769074eb',
+                bz2 => 'd1f1c81855ff0f70dc5fcdc8e1ab86b0'
         };
     }
     sub _unique_file { return 'src/Fl.cxx' }
@@ -288,11 +288,14 @@ with MinGW. Further testing is needed for other setups.
 =item X11/*nix
 
 X11-based systems require several development packages. On Debian, these may
-be installed with...
+be installed with:
 
-  > sudo apt-get install libx11-dev
-  > sudo apt-get install libxi-dev
-  > sudo apt-get install libxcursor-dev
+    > sudo apt-get install libx11-dev
+    > sudo apt-get install libxi-dev
+
+Additionally, the optional XCurser lib may be installed with:
+
+    > sudo apt-get install libxcursor-dev
 
 =item Darwin/OSX
 
@@ -395,6 +398,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 364f273 2010-02-10 07:18:40Z sanko@cpan.org $
+=for git $Id: FLTK.pm 0bfc53b 2010-02-13 16:54:31Z sanko@cpan.org $
 
 =cut
