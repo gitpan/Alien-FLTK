@@ -20,6 +20,8 @@ package inc::MBX::Alien::FLTK::Platform::Windows;
                      . ' -lmsimg32 -lole32 -luuid -lcomctl32 -lwsock32');
         $self->notes('cxxflags' => '-mwindows -DWIN32 -Wno-non-virtual-dtor '
                      . $self->notes('cxxflags'));
+        $self->notes(
+                   'cflags' => '-mwindows -DWIN32 ' . $self->notes('cflags'));
 
         #$self->notes('define')->{'HAVE_DIRENT_H'}   = undef;
         #$self->notes('define')->{'HAVE_SYS_NDIR_H'} = undef;
@@ -28,6 +30,7 @@ package inc::MBX::Alien::FLTK::Platform::Windows;
         $self->notes('define')->{'HAVE_SCANDIR'} = undef;
     GL: {
             last if grep {m[^no_gl$]} @args;
+            $self->notes('define')->{'HAVE_GL'} = 1;
             last GL if !$self->find_h('GL/gl.h');
             print 'Testing GL Support... ';
             if (!$self->assert_lib({lib => 'opengl32', header => 'GL/gl.h'}))
