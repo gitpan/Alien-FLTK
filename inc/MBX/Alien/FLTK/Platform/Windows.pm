@@ -5,7 +5,7 @@ package inc::MBX::Alien::FLTK::Platform::Windows;
     use Carp qw[];
     use Config qw[%Config];
     use lib '../../../../../';
-    use inc::MBX::Alien::FLTK::Utility qw[_o _a _rel _abs can_run];
+    use inc::MBX::Alien::FLTK::Utility qw[_o _a _rel _abs can_run _path];
     use inc::MBX::Alien::FLTK;
     use base 'inc::MBX::Alien::FLTK::Base';
     $|++;
@@ -28,10 +28,9 @@ package inc::MBX::Alien::FLTK::Platform::Windows;
         #$self->notes('define')->{'HAVE_SYS_DIR_H'}  = undef;
         #$self->notes('define')->{'HAVE_NDIR_H'}     = undef;
         $self->notes('define')->{'HAVE_SCANDIR'} = undef;
+        $self->notes('define')->{'HAVE_DIRENT'}  = 0;
     GL: {
             last if grep {m[^no_gl$]} @args;
-            $self->notes('define')->{'HAVE_GL'} = 1;
-            last GL if !$self->find_h('GL/gl.h');
             print 'Testing GL Support... ';
             if (!$self->assert_lib({lib => 'opengl32', header => 'GL/gl.h'}))
             {   print "not okay\n";
@@ -40,11 +39,12 @@ package inc::MBX::Alien::FLTK::Platform::Windows;
                                message => 'OpenGL libs were not found'
                               }
                 );
-                last GL;
+                $self->notes(GL => '');
                 for my $lib (keys %{$self->notes('libs_source')}) {
                     $self->notes('libs_source')->{$lib}{'disabled'}++
-                        if $lib =~ m[gl$]i;
+                        if $lib =~ m[gl]i;
                 }
+                last GL;
             }
             print "okay\n";
             $self->notes('define')->{'HAVE_GL'} = 1;
@@ -58,11 +58,12 @@ package inc::MBX::Alien::FLTK::Platform::Windows;
                                message => 'OpenGLU32 libs were not found'
                               }
                 );
-                last GL;
+                $self->notes(GL => '');
                 for my $lib (keys %{$self->notes('libs_source')}) {
                     $self->notes('libs_source')->{$lib}{'disabled'}++
-                        if $lib =~ m[gl$]i;
+                        if $lib =~ m[gl]i;
                 }
+                last GL;
             }
             else {
                 $self->notes('define')->{'HAVE_GL_GLU_H'} = 1;

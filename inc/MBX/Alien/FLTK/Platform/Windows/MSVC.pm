@@ -35,8 +35,8 @@ package inc::MBX::Alien::FLTK::Platform::Windows::MSVC;
                                        : ' -lfltk2_images '
                      )
         );
-        $self->notes('include_dirs'  => {});
-        $self->notes('library_paths' => {});
+        $self->notes('include_dirs' => {});
+        $self->notes('lib_dirs'     => {});
 
         # Not all of FLTK is compatible/applicable with MSVC...
         my @remove = qw[WidgetAssociation.cxx];
@@ -73,7 +73,6 @@ package inc::MBX::Alien::FLTK::Platform::Windows::MSVC;
                     next;
                 };
                 if ($data =~ s[^(#\s*warning .+)$][//$1]mg) {
-                    warn $src;
                     printf
                         'Removing incompatible #warning pragmas from %s... ',
                         $src;
@@ -120,7 +119,8 @@ package inc::MBX::Alien::FLTK::Platform::Windows::MSVC;
                 HAVE_GL_GLU_H    => 1,
                 HAVE_GL_OVERLAY      => 'HAVE_OVERLAY',
                 USE_GL_OVERLAY       => 0,
-                HAVE_DIRENT_H        => 1,
+                HAVE_DIRENT          => 0,
+                HAVE_DIRENT_H        => 0,
                 HAVE_STRING_H        => 1,
                 HAVE_STRINGS_H       => 1,
                 HAVE_VSNPRINTF       => 1,
@@ -146,7 +146,7 @@ package inc::MBX::Alien::FLTK::Platform::Windows::MSVC;
         );
         for my $lib (keys %{$self->notes('libs_source')}) {
             $self->notes('libs_source')->{$lib}{'disabled'}++
-                if $lib =~ m[glut$]i;
+                if $lib =~ m[glut]i;
         }
         $self->notes(ldflags => $self->notes('ldflags')
             . ' ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib msimg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib '

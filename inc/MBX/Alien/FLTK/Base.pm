@@ -9,8 +9,8 @@ package inc::MBX::Alien::FLTK::Base;
     use Carp qw[carp];
     use base 'Module::Build';
     use lib '../../../../';
-    use inc::MBX::Alien::FLTK::Utility
-        qw[_o _a _path _realpath _dir _file _rel _abs _exe _cwd can_run run];
+    use inc::MBX::Alien::FLTK::Utility qw[can_run run _o _a _exe _dll _path
+        _realpath _abs _rel _dir _file _split _cwd];
     use lib '.';
 
     sub fltk_dir {
@@ -22,7 +22,9 @@ package inc::MBX::Alien::FLTK::Base;
     sub archive {
         my ($self, $args) = @_;
         my $arch = $args->{'output'};
-        my @cmd = ($self->notes('AR'), $arch, @{$args->{'objects'}});
+        my @cmd = ($self->notes('AR'), $arch,
+                   map { _rel($_) } @{$args->{'objects'}}
+        );
         print STDERR "@cmd\n" if !$self->quiet;
         return run(@cmd) ? $arch : ();
     }
@@ -38,17 +40,17 @@ package inc::MBX::Alien::FLTK::Base;
 
     sub compile {
         my ($self, $args) = @_;
-        local $^W = 0;
         my $cbuilder = $self->cbuilder;
-        local $cbuilder->{'quiet'} = !$args->{'verbose'};
-        local $cbuilder->{'config'}{'archlibexp'} = '---break---';
+
+        #local $^W = 0;
+        #local $cbuilder->{'quiet'} = 1;
         if (!$args->{'source'}) {
             (my $FH, $args->{'source'}) = tempfile(
                                      undef, SUFFIX => '.cpp'    #, UNLINK => 1
             );
             syswrite($FH,
-                     ($args->{'code'}
-                      ? delete $args->{'code'}
+                     ($args->{'code'} ?
+                          delete $args->{'code'}
                       : 'int main(){return 0;}'
                          )
                          . "\n"
@@ -56,11 +58,9 @@ package inc::MBX::Alien::FLTK::Base;
             close $FH;
             $self->add_to_cleanup($args->{'source'});
         }
-        my $OLDSTDERR;
-        if (!$args->{'verbose'}) {
-            close *STDERR
-                if open($OLDSTDERR, '>&', *STDERR);
-        }
+
+        #open(my ($OLDERR), ">&STDERR");
+        #close *STDERR if $cbuilder->{'quiet'};
         my $obj = eval {
             $cbuilder->compile(
                   ($args->{'source'} !~ m[\.c$] ? ('C++' => 1) : ()),
@@ -75,10 +75,9 @@ package inc::MBX::Alien::FLTK::Base;
                   )
             );
         };
-        if (!$args->{'verbose'}) {
-            open(*STDERR, '>&', $OLDSTDERR)
-                || print "Couldn't restore STDERR: $!\n";
-        }
+
+        #open(*STDERR, '>&', $OLDERR)
+        #    || exit !print "Couldn't restore STDERR: $!\n";
         return $obj ? $obj : ();
     }
 
@@ -172,24 +171,14 @@ package inc::MBX::Alien::FLTK::Base;
             'image_flags' => (
 
                 #"-lpng -lfltk2_images -ljpeg -lz"
-                $self->notes('branch') eq '1.3.x'
-                ? ' -lfltk_images '
+                $self->notes('branch') eq '1.3.x' ?
+                    ' -lfltk_images '
                 : ' -lfltk2_images '
             )
         );
-        $self->notes('include_dirs'  => {});
-        $self->notes('library_paths' => {});
-        {
-            print 'Locating library archiver... ';
-            my $ar = can_run('ar');
-            if (!$ar) {
-                print "Could not find the library archiver, aborting.\n";
-                exit 0;
-            }
-            $ar .= ' cr' . (can_run('ranlib') ? 's' : '');
-            $self->notes(AR => $ar);
-            print "$ar\n";
-        }
+        $self->notes('include_dirs' => {});
+        $self->notes('lib_dirs'     => {});
+        $self->_configure_ar;
         {
             my %sizeof;
             for my $type (qw[short int long]) {
@@ -218,7 +207,6 @@ int main ( ) {
                 $sizeof{$type} = $exe ? `$exe` : 0;
                 print "okay\n";
             }
-
             #
             if ($sizeof{'short'} == 2) {
                 $self->notes('define')->{'U16'} = 'unsigned short';
@@ -288,7 +276,7 @@ int main ( ) {
                 my $print = '';
                 for my $key (@defines) {
                     $print
-                        .= '#ifdef ' 
+                        .= '#ifdef '
                         . $key . "\n"
                         . '    printf("'
                         . $key
@@ -333,7 +321,7 @@ return 0;
             $self->notes('define')->{'USE_X11_MULTITHREADING'} = 0;
             $self->notes('define')->{'USE_XFT'}                = 0;
             $self->notes('define')->{'USE_CAIRO'}
-                = ($self->notes('branch') eq '2.0.x' ? 0 : undef);
+                = ($self->notes('branch') =~ '2.0.x' ? 0 : undef);
             $self->notes('define')->{'USE_CLIPOUT'}      = 0;
             $self->notes('define')->{'USE_XSHM'}         = 0;
             $self->notes('define')->{'HAVE_XDBE'}        = 0;
@@ -376,12 +364,12 @@ return 0;
             $self->notes('define')->{'HAVE_STRLCPY'}     = undef;
             $self->notes('define')->{'HAVE_STRNCASECMP'} = undef;
             $self->notes('define')->{'HAVE_SYS_SELECT_H'}
-                = $self->assert_lib({headers => ['sys/select.h']})
-                ? 1
+                = $self->assert_lib({headers => ['sys/select.h']}) ?
+                1
                 : undef;
             $self->notes('define')->{'HAVE_SYS_STDTYPES_H'}
-                = $self->assert_lib({headers => ['sys/stdtypes.h']})
-                ? 1
+                = $self->assert_lib({headers => ['sys/stdtypes.h']}) ?
+                1
                 : undef;
             $self->notes('define')->{'USE_POLL'} = 0;
             {
@@ -392,7 +380,6 @@ return 0;
 #ifdef __cplusplus
 extern "C"
 #endif
-char png_read_rows ( );
 int main ( ) { return png_read_rows( ); return 0;}
 
                     $self->notes('define')->{'HAVE_LIBPNG'} = 1;
@@ -404,7 +391,6 @@ int main ( ) { return png_read_rows( ); return 0;}
 #ifdef __cplusplus
 extern "C"
 #endif
-char png_read_rows ( );
 int main ( ) { return png_read_rows( ); return 0;}
 
                     $self->notes('define')->{'HAVE_LIBPNG'}      = 1;
@@ -417,15 +403,14 @@ int main ( ) { return png_read_rows( ); return 0;}
 #ifdef __cplusplus
 extern "C"
 #endif
-char png_read_rows ( );
 int main ( ) { return png_read_rows( ); return 0;}
 
                     $self->notes('define')->{'HAVE_LIBPNG'} = 1;
                     $png_lib .= ' -lpng ';
                 }
                 else {
-                    $png_lib .= ($self->notes('branch') eq '1.3.x'
-                                 ? ' -lfltk_png '
+                    $png_lib .= ($self->notes('branch') eq '1.3.x' ?
+                                     ' -lfltk_png '
                                  : ' -lfltk2_png '
                     );
                 }
@@ -440,8 +425,8 @@ int main () { return gzopen( ); return 0; }
                     $png_lib .= ' -lz ';
                 }
                 else {
-                    $png_lib .= ($self->notes('branch') eq '1.3.x'
-                                 ? ' -lfltk_z '
+                    $png_lib .= ($self->notes('branch') eq '1.3.x' ?
+                                     ' -lfltk_z '
                                  : ' -lfltk2_z '
                     );
                 }
@@ -461,7 +446,6 @@ int main () { return gzopen( ); return 0; }
 #ifdef __cplusplus
 extern "C"
 #endif
-char jpeg_destroy_decompress ( );
 int main ( ) { return jpeg_destroy_decompress( ); return 0;}
 
                     $self->notes('define')->{'HAVE_LIBJPEG'} = 1;
@@ -473,7 +457,6 @@ int main ( ) { return jpeg_destroy_decompress( ); return 0;}
 #ifdef __cplusplus
 extern "C"
 #endif
-char jpeg_destroy_decompress ( );
 int main ( ) { return jpeg_destroy_decompress( ); return 0;}
 
                     $self->notes('define')->{'HAVE_LIBJPEG'}      = 1;
@@ -486,17 +469,14 @@ int main ( ) { return jpeg_destroy_decompress( ); return 0;}
 #ifdef __cplusplus
 extern "C"
 #endif
-char jpeg_destroy_decompress ( );
 int main ( ) { return jpeg_destroy_decompress( ); return 0;}
 
                     $self->notes('define')->{'HAVE_LIBJPEG'} = 1;
                     $jpeg_lib .= ' -ljpeg ';
                 }
                 else {
-                    $self->notes('define')->{'HAVE_LIBJPEG'}
-                        = $self->notes('branch') eq '1.3.x' ? 1 : 0;
-                    $jpeg_lib .= ($self->notes('branch') eq '1.3.x'
-                                  ? ' -lfltk_jpeg '
+                    $jpeg_lib .= ($self->notes('branch') eq '1.3.x' ?
+                                      ' -lfltk_jpeg '
                                   : ' -lfltk2_jpeg '
                     );
                 }
@@ -507,12 +487,11 @@ int main ( ) { return jpeg_destroy_decompress( ); return 0;}
                     # XXX - Disable building qr[fltk2?_z]?
                 }
                 else {
-
        #? ' -lfltk_images -lfltk_png -lfltk_z -lfltk_images -lfltk_jpeg '
        #: ' -lfltk2_images -lfltk2_png -lfltk2_z -lfltk2_images -lfltk2_jpeg '
                     $self->notes('image_flags' => $self->notes('image_flags')
-                                     . ($self->notes('branch') eq '1.3.x'
-                                        ? ' -lfltk_z'
+                                     . ($self->notes('branch') eq '1.3.x' ?
+                                            ' -lfltk_z'
                                         : ' -lfltk2_z'
                                      )
                     );
@@ -557,9 +536,9 @@ int main ( ) {
 }
 
                 my $define = uc 'HAVE_' . $header;
+                $define =~ s|[/\.]|_|g;
                 if ($exe) {
                     print "    yes ($header)\n";
-                    $define =~ s|[/\.]|_|g;
                     $self->notes('define')->{$define} = 1;
 
                     #$self->notes('cache')->{'header_dirent'} = $header;
@@ -570,7 +549,6 @@ int main ( ) {
                     print "no\n";    # But we can pretend...
                 }
             }
-
             #
             $self->notes('define')->{'HAVE_LOCAL_PNG_H'}
                 = $self->notes('define')->{'HAVE_LIBPNG'} ? undef : 1;
@@ -687,17 +665,38 @@ int main () {
         return 1;
     }
 
+    sub _configure_ar {
+        my $s = shift;
+        print 'Locating library archiver... ';
+        open(my ($OLDOUT), ">&STDOUT");
+        close *STDOUT;
+        my ($ar) = grep { run("$_ V") } can_run($Config{'ar'});
+        open(*STDOUT, '>&', $OLDOUT)
+            || exit !print "Couldn't restore STDOUT: $!\n";
+        if (!$ar) {
+            print "Could not find the library archiver, aborting.\n";
+            exit 0;
+        }
+        $ar .= ' cr' . (can_run($Config{'ranlib'}) ? 's' : '');
+        $s->notes(AR => $ar);
+        print "$ar\n";
+    }
+
     sub build_fltk {
         my ($self, $build) = @_;
         $self->quiet(1);
         $self->notes('libs' => []);
+        local $self->cbuilder->{'config'}{'archlibexp'} = '---break---';
         if (!chdir $self->base_dir()) {
             print 'Failed to cd to base directory';
             exit 0;
         }
         my $libs = $self->notes('libs_source');
-        for my $lib (sort { lc $a cmp lc $b } keys %$libs) {
-            next if $libs->{$lib}{'disabled'};
+        my @libs = sort { lc $a cmp lc $b }
+            grep { !$libs->{$_}{'disabled'} } keys %$libs;
+
+        #printf "The following libs will be built: %s\n", join ', ', @libs;
+        for my $lib (@libs) {
             print "Building $lib...\n";
             my $cwd = _abs(_cwd());
             if (!chdir $build->fltk_dir($libs->{$lib}{'directory'})) {
@@ -728,25 +727,26 @@ int main () {
             for my $src (sort { lc $a cmp lc $b } @{$libs->{$lib}{'source'}})
             {   my $obj = _o($src);
                 $obj
-                    = $build->up_to_date($src, $obj)
-                    ? $obj
+                    = $build->up_to_date($src, $obj) ?
+                    $obj
                     : sub {
                     print "Compiling $src...\n";
-                    return
-                        $self->compile({source       => $src,
-                                        include_dirs => [keys %include_dirs],
-                                        extra_compiler_flags =>
-                                            join(' ',
-                                                 $Config{'ccflags'},
-                                                 '-MD',
-                                                 (  $src =~ m[\.c$]
-                                                  ? $self->notes('cflags')
-                                                  : $self->notes('cxxflags')
-                                                 )
-                                            ),
-                                        output => $obj,
-                                       }
-                        );
+                    return $self->compile(
+                        {source               => $src,
+                         include_dirs         => [keys %include_dirs],
+                         extra_compiler_flags => join(
+                             ' ',
+                             $Config{'ccflags'},
+                             '-MD',
+                             ($src =~ m[\.c$] ?
+                                  $self->notes('cflags')
+                              : $self->notes('cxxflags')
+                             ),
+                             '-DFL_LIBRARY',    # fltk 1.3.x
+                         ),
+                         output => $obj,
+                        }
+                    );
                     }
                     ->();
                 if (!$obj) {
@@ -763,8 +763,8 @@ int main () {
             my $_lib = _rel($build->fltk_dir('lib/' . _a($lib)));
             printf 'Archiving %s... ', $lib;
             $_lib
-                = $build->up_to_date(\@obj, $_lib)
-                ? $_lib
+                = $build->up_to_date(\@obj, $_lib) ?
+                $_lib
                 : $self->archive({output  => _abs($_lib),
                                   objects => \@obj
                                  }
@@ -787,8 +787,8 @@ int main () {
     sub ACTION_fetch_fltk {
         my ($self, %args) = @_;
         my ($dir, $archive, $extention);
-        $args{'to'} = (defined $args{'to'}
-                       ? $args{'to'}
+        $args{'to'} = (defined $args{'to'} ?
+                           $args{'to'}
                        : $self->notes('snapshot_dir')
         );
         unshift @INC, (_path($self->base_dir, 'lib'));
@@ -970,7 +970,8 @@ END
             = eval 'require '
             . $self->module_name
             && $self->module_name->can('_snapshot_mirrors')
-            ? $self->module_name->_snapshot_mirrors()
+            ?
+            $self->module_name->_snapshot_mirrors()
             : {
             'California, USA' => 'ftp.easysw.com/pub',
             'New Jersey, USA' => 'ftp2.easysw.com/pub',
@@ -1047,8 +1048,9 @@ END
                && -d $args{'to'} . sprintf '/%sfltk-%s-%s',
                $key,
                $self->notes('branch'),
-               $key
-               ? $self->module_name->_git_rev()
+               $key && $self->module_name->can('_git_rev')
+               ?
+               $self->module_name->_git_rev()
                : 'r' . $self->notes('svn')
             )
             )
@@ -1068,12 +1070,13 @@ END
             $self->notes('timestamp_extracted' => time);
             $self->notes('extract'             => $args{'to'});
             $self->notes('snapshot_path'       => $args{'from'});
+            $self->notes('fltk_patched'        => 0);
             $self->notes(
                      'fltk_dir' => _abs $args{'to'} . sprintf '/%sfltk-%s-%s',
                      $key,
                      $self->notes('branch'),
-                     $key
-                     ? $self->module_name->_git_rev()
+                     $key ?
+                         $self->module_name->_git_rev()
                      : 'r' . $self->notes('svn')
             );
             print "done.\n";
@@ -1083,7 +1086,6 @@ END
 
     sub ACTION_configure {
         my ($self) = @_;
-        $self->depends_on('extract_fltk');
         if (!$self->notes('timestamp_configure')
 
             #   || !$self->notes('define')
@@ -1103,6 +1105,7 @@ END
         #    if -f $self->notes('config_yml')
         #        && -s $self->notes('config_yml');
         $self->depends_on('configure');
+        $self->depends_on('extract_fltk');
         if (!chdir $self->fltk_dir()) {
             print 'Failed to cd to '
                 . $self->fltk_dir()
@@ -1120,14 +1123,14 @@ END
                 my %config = %{$self->notes('define')};
                 for my $key (
                     sort {
-                        $config{$a} && $config{$a} =~ m[^HAVE_]
-                            ? ($b cmp $a)
+                        $config{$a} && $config{$a} =~ m[^HAVE_] ?
+                            ($b cmp $a)
                             : ($a cmp $b)
                     } keys %config
                     )
                 {   $config .=
-                        sprintf((defined $config{$key}
-                                 ? '#define %-25s %s'
+                        sprintf((defined $config{$key} ?
+                                     '#define %-25s %s'
                                  : '#undef  %-35s'
                                 )
                                 . "\n",
@@ -1155,7 +1158,7 @@ END
     sub ACTION_write_config_yml {
         my ($self) = @_;
         $self->depends_on('configure');
-        require Module::Build::YAML;
+        require YAML::Tiny;
         printf 'Updating %s config... ', $self->module_name;
         my $me        = ($self->notes('config_yml'));
         my $mode_orig = 0644;
@@ -1174,7 +1177,7 @@ END
                               $me, $!
                              }
             );
-        syswrite($YML, Module::Build::YAML::Dump(\%{$self->notes()}))
+        syswrite($YML, YAML::Tiny::Dump(\%{$self->notes()}))
             || $self->_error(
                          {stage   => 'config.yml creation',
                           fatal   => 1,
@@ -1212,6 +1215,7 @@ END
         my ($self) = @_;
         $self->depends_on('write_config_h');
         $self->depends_on('write_config_yml');
+        $self->depends_on('patch_fltk');
         my @lib = $self->build_fltk($self);
         if (!chdir $self->base_dir()) {
             printf 'Failed to return to %s to copy libs', $self->base_dir();
@@ -1255,13 +1259,12 @@ END
         $self->notes(errors => []);    # Reset fatal and non-fatal errors
     }
     {
-
         # Ganked from Devel::CheckLib
         sub assert_lib {
             my ($self, $args) = @_;
 
             # Defaults
-            $args->{'code'}         ||= 'int main( ) { return 0; }';
+            $args->{'code'}         ||= "int main( ) { return 0; }\n";
             $args->{'include_dirs'} ||= ();
             $args->{'lib_dirs'}     ||= ();
             $args->{'headers'}      ||= ();
@@ -1270,32 +1273,54 @@ END
             #use Data::Dumper;
             #warn Dumper $args;
             # first figure out which headers we can' t find...
-            for my $header (@{$args->{'headers'}}) {
-                printf 'Trying to compile with %s... ', $header;
+        HEADER: for my $header (@{$args->{'headers'}}) {
+
+                #printf 'Trying to compile with %s... ', $header;
+                push @{$args->{'include_dirs'}}, $self->find_h($header);
                 if ($self->compile(
-                            {code => "#include <$header>\n" . $args->{'code'},
-                             include_dirs => $args->{'include_dirs'},
-                             lib_dirs     => $args->{'lib_dirs'}
-                            }
+                        {code => "#include <$header>\n" . $args->{'code'},
+                         include_dirs => [
+
+                             #$self->find_h($header),
+                             @{$args->{'include_dirs'}},
+                             keys %{$self->notes('include_dirs')}
+                         ],
+                         lib_dirs => [grep {defined} $args->{'lib_dirs'},
+                                      keys %{$self->notes('lib_dirs')}
+                         ]
+                        }
                     )
                     )
                 {   print "okay\n";
                     next;
                 }
-                print "Cannot include $header\n";
-                return 0;
+                else {
+                    print "Cannot include $header\n";
+                    return 0;
+                }
             }
 
             # now do each library in turn with no headers
             for my $lib (@{$args->{'libs'}}) {
-                printf 'Trying to link with %s... ', $lib;
+
+                #printf 'Trying to link with %s... ', $lib;
                 if ($self->test_exe(
                            {code =>
                                 join("\n",
                                 (map {"#include <$_>"} @{$args->{'headers'}}),
                                 $args->{'code'}),
-                            include_dirs       => $args->{'include_dirs'},
-                            lib_dirs           => $args->{'lib_dirs'},
+                            include_dirs => [
+                                          ($args->{'include_dirs'}
+                                           ?
+                                               @{$args->{'include_dirs'}}
+                                           : ()
+                                          ),
+                                          keys %{$self->notes('include_dirs')}
+                            ],
+                            lib_dirs => [grep {defined} $args->{'lib_dirs'},
+                                         keys %{$self->notes('lib_dirs')},
+                                         $self->find_lib($lib)
+                            ],
                             extra_linker_flags => "-l$lib"
                            }
                     )
@@ -1320,8 +1345,13 @@ END
                 = File::Find::Rule->file()
                 ->name('lib' . $find . $Config{'_a'})->maxdepth(1)
                 ->in(split ' ', $dir);
-            printf "%s\n", @files ? 'found ' . (_dir($files[0])) : 'missing';
-            return _path((_dir($files[0])));
+            if (@files) {
+                printf "found in %s\n", _dir($files[0]);
+                $self->notes('lib_dirs')->{_path((_dir($files[0])))}++;
+                return _path((_dir($files[0])));
+            }
+            print "missing\n";
+            return ();
         }
 
         sub find_h {
@@ -1329,6 +1359,11 @@ END
             printf 'Looking for %s... ', $file;
             $dir = join ' ', ($dir || ''), $Config{'incpath'},
                 $Config{'usrinc'};
+            {    # work around bug in recent Strawberry perl
+                my @pth = split ' ', $Config{'libpth'};
+                s[lib$][include] for @pth;
+                $dir .= join ' ', @pth;
+            }
             $dir =~ s|\s+| |g;
             for my $test (split m[\s+]m, $dir) {
                 if (-e _path($test . '/' . $file)) {
@@ -1358,6 +1393,156 @@ END
             print "missing\n";
             return ();
         }
+    }
+
+    # Patch system
+    sub ACTION_patch_fltk {
+        my $s = shift;
+        return if $s->notes('fltk_patched');
+        my $cwd = _abs(_cwd());
+        if (!chdir $s->base_dir()) {
+            print 'Failed to cd to base directory';
+            exit 0;
+        }
+        my @patches = $s->fltk_patches;
+        printf "Patching FLTK... (expect %d patch%s)\n", scalar(@patches),
+            (@patches == 1 ? '' : 'es');
+        for my $patch (@patches) {
+            printf 'Applying %s... ', _rel($patch);
+            printf ucfirst "%sokay\n",
+                $s->_patch_dir($s->fltk_dir, $s->_parse_diff($patch))
+                ?
+                [$s->notes('fltk_patched', gmtime()), '']->[1]
+                : [$s->notes('fltk_patched', 0), 'not ']->[1];
+        }
+    }
+
+    sub _parse_diff {    # Takes unified diff and returns list of changes
+        my ($s, $diff) = @_;
+        if (!chdir $s->base_dir()) {
+            print 'Failed to cd to base directory';
+            exit 0;
+        }
+        $diff = sub {
+            open my $FH, '<', shift || return;
+            sysread $FH, my $DAT, -s $FH;
+            $DAT;
+            }
+            ->($diff) || $diff if $diff !~ m[\r?\n] && -f $diff;
+        my @diff = split /^/m, $diff;
+        my $eol = $diff[-1] =~ m[(\r?\n)$];
+        #
+        my (%patch, $hunk, $from_file, $to_file, $from_time, $to_time);
+        while (my $line = shift @diff) {
+            if ($line =~ m[^\@\@\s+-([\d+,?]+)\s+\+([\d+,?]+)\s+\@\@\s*$])
+            {    # Unified
+                if ($hunk) {
+                    push @{$patch{$to_file}{hunks}}, $hunk;
+                    $hunk = ();
+                }
+                ($hunk->{from_pos}, $hunk->{from_len}) = split ',', $1;
+                ($hunk->{to_pos},   $hunk->{to_len})   = split ',', $2;
+                $hunk->{$_}-- for qw[from_pos to_pos];
+            }
+            elsif ($line =~ m[^---\s+([^\t]+)\t(.+)$]) {
+                ($from_file, $from_time) = ($1, $2);
+            }
+            elsif ($line =~ m[^\+\+\+\s+([^\t]+)\t(.+)$]) {
+                ($to_file, $to_time) = ($1, $2);
+            }
+            else {
+                next if !$hunk;
+                ($hunk->{from_file}, $hunk->{to_file},
+                 $hunk->{from_time}, $hunk->{to_time}
+                ) = ($from_file, $to_file, $from_time, $to_time);
+                push @{$hunk->{data}}, $line;
+            }
+        }
+        #
+        push @{$patch{$to_file}{hunks}}, $hunk;
+        return \%patch;
+    }
+
+    sub _patch_dir {
+        my ($s, $dir, $patches) = @_;
+        if (!chdir $s->base_dir()) {
+            print 'Failed to cd to base directory';
+            exit 0;
+        }
+        my $tally;
+        require File::Spec;
+        for my $file (keys %$patches) {
+            my $abs = File::Spec->catfile($dir, $file);
+            my $orig;
+            {
+                open(my $FH, '<', _abs($abs))
+                    || die 'Failed to open '
+                    . _abs($abs)
+                    . ' for patching | '
+                    . $!;
+                sysread($FH, $orig, -s $FH) == -s $FH
+                    || die 'Failed to slurp ' . _abs($abs) . ' | ' . $!;
+                close $FH;
+            }
+            my @orig = split /^/m, $orig;
+            my $data = $s->_patch_data(\@orig, $patches->{$file}{'hunks'});
+            $tally += sub {
+                open my $FH, '>', shift || return;
+                syswrite $FH, shift;
+                }
+                ->($abs, join '', @$data) if $data;
+        }
+        return $tally;
+    }
+
+    sub _patch_data {
+        my ($s, $text, $hunks) = @_;
+        if (!chdir $s->base_dir()) {
+            print 'Failed to cd to base directory';
+            exit 0;
+        }
+        for my $hunk (reverse @$hunks) {
+            my @pdata;
+            my $num = $hunk->{from_pos};
+            for (@{$hunk->{data}}) {
+                my ($first, $line) = (m[^([ \-\+])(.*)$]s) or next;
+                if ($first ne '+') {
+                    my ($orig)   = ($text->[$num++] =~ m[^(.+?)(\r\n|\n)$]);
+                    my ($expect) = ($line           =~ m[^(.+?)(\r\n|\n)$]);
+                    next if !$orig || !$expect;
+                    return !
+                        printf
+                        <<'END', $num, $orig, $expect if $orig ne $expect
+Files differ at line %d!
+    Expected: %s
+    Actual:   %s
+END
+                }
+                next if $first eq '-';
+                push @pdata, $line;
+            }
+            splice @$text, $hunk->{from_pos}, $hunk->{from_len}, @pdata;
+        }
+        return $text;
+    }
+
+    sub fltk_patches {
+        my $s = shift;
+        my $toolkit
+            = $^O eq 'MSWin32' ? 'win32'
+            : $^O eq 'darwin'  ? 'darwin'
+            :                    'unix';
+        my @patches;
+        find {
+            wanted => sub {
+                return if -d;
+                return if !m[$toolkit];
+                push @patches, $File::Find::name;
+            },
+            no_chdir => 1
+            },
+            $s->base_dir() . '/patches';
+        @patches;
     }
     1;
 }

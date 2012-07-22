@@ -3,11 +3,11 @@ package Alien::FLTK;
     use strict;
     use warnings;
     use File::Spec::Functions qw[catdir rel2abs canonpath];
-    our $BASE = 0; our $SVN = 7694; our $DEV = -1; our $VERSION = sprintf('%d.%05d' . ($DEV ? (($DEV < 0 ? '' : '_') . '%03d') : ('')), $BASE, $SVN, abs $DEV);
+    our $BASE = 0; our $SVN = 9635; our $DEV = -1; our $VERSION = sprintf('%d.%05d' . ($DEV ? (($DEV < 0 ? '' : '_') . '%03d') : ('')), $BASE, $SVN, abs $DEV);
 
     sub _md5 {
-        return {gz  => '8514a73fcbd30cc77b89e0a3ecb8f231',
-                bz2 => '562ed04c9865459cd5a7398a8fa54b17'
+        return {bz2 => '692e5855061b3e1a71d39fa4828fbac1',
+                gz  => 'a6ca4449539e678634a7088a3feda7ba'
         };
     }
     sub _unique_file { return 'src/Fl.cxx' }
@@ -62,14 +62,13 @@ package Alien::FLTK;
     sub ldflags {    # XXX - Cache this
         my ($self, @args) = @_;
         my $MSVC = 'Windows|MSVC' eq join '|', @{$self->config->{'platform'}};
-
         #
         my $libdir = shift->library_path();
 
         # Calculate needed libraries
         my $SHAREDSUFFIX
-            = $self->config->{'_a'}
-            ? $self->config->{'_a'}
+            = $self->config->{'_a'} ?
+            $self->config->{'_a'}
             : $^O =~ '$MSWin32' ? '.a'    # Even on MSVC... for now.
             :                     '.o';
         my $LDSTATIC = sprintf '-L%s %s/libfltk%s %s', $libdir, $libdir,
@@ -127,7 +126,7 @@ package Alien::FLTK;
 
 =head1 NAME
 
-Alien::FLTK - Build and use the stable C<1.3.x> branch of the Fast Light Toolkit
+Alien::FLTK - Build and use the stable 1.3.x branch of the Fast Light Toolkit
 
 =head1 Description
 
@@ -389,7 +388,7 @@ CPAN ID: SANKO
 
 =head1 License and Legal
 
-Copyright (C) 2009 by Sanko Robinson E<lt>sanko@cpan.orgE<gt>
+Copyright (C) 2009-2012 by Sanko Robinson E<lt>sanko@cpan.orgE<gt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of The Artistic License 2.0. See the F<LICENSE> file included with
@@ -404,6 +403,6 @@ clarification, see http://creativecommons.org/licenses/by-sa/3.0/us/.
 L<Alien::FLTK|Alien::FLTK> is based in part on the work of the FLTK project.
 See http://www.fltk.org/.
 
-=for git $Id: FLTK.pm 45bb2d7 2010-09-04 03:56:05Z sanko@cpan.org $
+=for git $Id: FLTK.pm fce12aa 2012-07-22 08:24:39Z sanko@cpan.org $
 
 =cut
