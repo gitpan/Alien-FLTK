@@ -34,8 +34,10 @@ Synopsis
                                extra_compiler_flags => $AF->cxxflags()
         );
         my $EXE =
-            $CC->link_executable(objects            => $OBJ,
-                                 extra_linker_flags => $AF->ldflags());
+            $CC->link_executable(
+             objects            => $OBJ,
+             extra_linker_flags => '-L' . $AF->library_path . ' ' . $AF->ldflags()
+            );
         print system('./' . $EXE) ? 'Aww...' : 'Yay!';
         END { unlink grep defined, $SRC, $OBJ, $EXE; }
 
@@ -79,12 +81,6 @@ Methods
     automatically add appropriate flags based on how you plan on linking to
     fltk. Acceptable arguments are:
 
-    `static'
-        Returns flags to link against a static FLTK library.
-
-        FLTK's license allows static linking, but Alien::FLTK does not build
-        static libs. ...yet.
-
     `gl'
         Include flags to use GL.
 
@@ -97,26 +93,14 @@ Methods
   `branch'
         my $revision = $AF->branch( );
 
-    Returns the SVN branch of the source Alien::FLTK was built with. For the
-    `2.0.x' branch of fltk, see Alien::FLTK.
+    Returns the SVN branch of the source Alien::FLTK was built with. This
+    will always be `1.3.x'.
 
   `revision'
         my $revision = $AF->revision( );
 
     Returns the SVN revision number of the source Alien::FLTK was built
     with.
-
-  `capabilities'
-        my $caps = $AF->capabilities( );
-
-    Returns a list of capabilities supported by your Alien::FLTK
-    installation. This list can be handed directly to `ldflags( )'.
-
-  `config'
-        my $configuration = $AF->config( );
-
-    Returns a hashref containing the raw configuration data collected during
-    build. This would be helpful when reporting bugs, etc.
 
 Notes
   Requirements

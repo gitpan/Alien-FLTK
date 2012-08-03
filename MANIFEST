@@ -1,21 +1,12 @@
 Build.PL
 Changes
-examples/0000_synopsis.pl
-inc/MBX/Alien/FLTK.pm
-inc/MBX/Alien/FLTK/Base.pm
-inc/MBX/Alien/FLTK/Platform/Unix.pm
-inc/MBX/Alien/FLTK/Platform/Unix/Darwin.pm
-inc/MBX/Alien/FLTK/Platform/Unix/Solaris.pm
-inc/MBX/Alien/FLTK/Platform/Windows.pm
-inc/MBX/Alien/FLTK/Platform/Windows/CygWin.pm
-inc/MBX/Alien/FLTK/Platform/Windows/MSVC.pm
-inc/MBX/Alien/FLTK/Utility.pm
+eg/synopsis.pl
+inc/Module/Build/FLTK.pm
 lib/Alien/FLTK.pm
 LICENSE
 MANIFEST			This list of files
+META.json
+META.yml
 README
 t/0000_use/0001_use.t
 t/0000_use/0002_exe.t
-TODO.pod
-META.yml
-META.json

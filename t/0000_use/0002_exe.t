@@ -41,8 +41,10 @@ my $OBJ = $CC->compile('C++'                => 1,
 );
 ok($OBJ, 'Compile with FLTK headers');
 my $EXE =
-    $CC->link_executable(objects            => $OBJ,
-                         extra_linker_flags => $AF->ldflags());
+    $CC->link_executable(
+         objects            => $OBJ,
+         extra_linker_flags => '-L' . $AF->library_path . ' ' . $AF->ldflags()
+    );
 ok($EXE,          'Link exe with fltk 1.3.x');
 ok(!system($EXE), sprintf 'Run exe');
 unlink $OBJ, $EXE, $SRC;

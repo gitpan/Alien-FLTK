@@ -1,3 +1,10 @@
+Version 1.0.0 | Day One AR | notingit;)
+
+    Notes:
+     * Build system changed to always install latest SVN snapshot so I can be
+       lazy again. Use configure script and makefile instead of my old hand
+       rolled mess. We'll see how that goes...
+
 Version 0.09635001 | 2012-07-22 08:40:13Z (Sun, 22 Jul 2012) | 5dae2c1
 
     Resolved Issues/Bug Fixes:

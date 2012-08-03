@@ -1,126 +1,36 @@
 package Alien::FLTK;
-{
-    use strict;
-    use warnings;
-    use File::Spec::Functions qw[catdir rel2abs canonpath];
-    our $BASE = 0; our $SVN = 9635; our $DEV = -1; our $VERSION = sprintf('%d.%05d' . ($DEV ? (($DEV < 0 ? '' : '_') . '%03d') : ('')), $BASE, $SVN, abs $DEV);
+{ $Alien::FLTK::VERSION = 'v1.0.0'; }
+use strict;
+use warnings;
+use File::ShareDir;
+use File::Spec::Functions qw[catdir rel2abs canonpath];
+use lib '../../blib/lib', '../blib/lib', 'blib/lib', 'lib';
 
-    sub _md5 {
-        return {bz2 => '692e5855061b3e1a71d39fa4828fbac1',
-                gz  => 'a6ca4449539e678634a7088a3feda7ba'
-        };
-    }
-    sub _unique_file { return 'src/Fl.cxx' }
-
-    sub new {
-        my ($class, $overrides) = @_;    # XXX - overrides are unsupported
-        my $self;
-        {
-            require File::ShareDir;
-            ($self->{'basedir'})
-                = (grep { -d $_ && -f catdir($_, 'config.yml') }
-                       map { rel2abs($_) } (
-                        'share', '../share', '../../share',
-                        eval { File::ShareDir::dist_dir('Alien-FLTK') }
-                       )
-                );
-        }
-        if (!defined $self->{'basedir'}) {
-            warn 'Fail';
-            return ();
-        }
-        $self->{'define'} = do {
-            require YAML::Tiny;
-            my $yaml
-                = YAML::Tiny->read(catdir($self->{'basedir'}, 'config.yml'));
-            warn 'Failed to load Alien::FLTK config: ' . YAML::Tiny->errstr()
-                if !$yaml;
-            $yaml ? $yaml->[0] : {};
-        };
-        return bless $self, shift;
-    }
-    sub config   { return +shift->{'define'}; }
-    sub revision { return $SVN; }
-    sub branch   { return +shift->{'define'}->{'branch'} }
-
-    sub include_dirs {
-        my ($self) = @_;
-        return canonpath($self->{'basedir'} . '/include');
-    }
-
-    sub library_path {
-        my ($self) = @_;
-        return canonpath($self->{'basedir'} . '/libs');
-    }
-    sub cflags { return shift->cxxflags(); }
-
-    sub cxxflags {
-        my ($self) = @_;
-        return $self->config->{'cxxflags'} ? $self->config->{'cxxflags'} : '';
-    }
-
-    sub ldflags {    # XXX - Cache this
-        my ($self, @args) = @_;
-        my $MSVC = 'Windows|MSVC' eq join '|', @{$self->config->{'platform'}};
-        #
-        my $libdir = shift->library_path();
-
-        # Calculate needed libraries
-        my $SHAREDSUFFIX
-            = $self->config->{'_a'} ?
-            $self->config->{'_a'}
-            : $^O =~ '$MSWin32' ? '.a'    # Even on MSVC... for now.
-            :                     '.o';
-        my $LDSTATIC = sprintf '-L%s %s/libfltk%s %s', $libdir, $libdir,
-            $SHAREDSUFFIX,
-            ($self->config->{'ldflags'} ? $self->config->{'ldflags'} : '');
-        my $LDFLAGS = '-lfltk '
-            . ($self->config->{'ldflags'} ? $self->config->{'ldflags'} : '');
-        my $LIBS = sprintf '%s/libfltk%s', $libdir, $SHAREDSUFFIX;
-        if (grep {m[forms]} @args) {
-            $LDFLAGS  = sprintf '-lfltk_forms %s',            $LDFLAGS;
-            $LDSTATIC = sprintf '$libdir/libfltk_forms%s %s', $libdir,
-                $SHAREDSUFFIX,
-                $$LDSTATIC;
-            $LIBS = sprintf '%s %s/libfltk_forms%s', $LIBS, $libdir,
-                $SHAREDSUFFIX;
-        }
-        if ((grep {m[gl]} @args) && $self->config->{'GL'}) {
-            my $LIBGL = $self->config->{'GL'};
-            $LDFLAGS = sprintf '-lfltk_gl %s %s', $LIBGL, $LDFLAGS;
-            $LDSTATIC = sprintf '%s/libfltk_gl%s %s %s',
-                $libdir, $SHAREDSUFFIX, $LIBGL, $LDSTATIC;
-            $LIBS = sprintf '%s %s/libfltk_gl%s',
-                $LIBS, $libdir, $SHAREDSUFFIX;
-        }
-        if (grep {m[images]} @args) {
-            my $img_libs = $self->config->{'image_flags'};
-            $LDFLAGS  = " $img_libs $LDFLAGS ";
-            $LDSTATIC = sprintf '%s/libfltk_images%s %s %s',
-                $libdir, $SHAREDSUFFIX, $img_libs, $LDSTATIC;
-        }
-        my $ret
-            = (  " -L$libdir "
-               . (($MSVC || grep {m[static]} @args) ? $LDSTATIC : $LDFLAGS)
-               . ($MSVC ? '' : ' -lsupc++'));
-        if ($MSVC) {    # Oy...
-            $ret =~ s[-L([^\s]*)][/libpath:"$1"]g;
-            $ret =~ s[-l([^\s]*)][$1]g;
-            $ret =~ s[-D([^\s]+)][/D"$1"]g;
-        }
-        return $ret;
-    }
-
-    sub capabilities {
-        my ($self) = @_;
-        my @caps;
-        push @caps, 'gl' if $self->config->{'define'}{'HAVE_GL'};
-
-        # TODO: images, forms, static(?)
-        return @caps;
-    }
-    1
+sub new {
+    my ($class, $overrides) = @_;    # XXX - overrides are unsupported
+    require Alien::FLTK::ConfigData;
+    return bless \{}, shift;
 }
+sub revision { Alien::FLTK::ConfigData->config('revision') }
+sub branch   { return '1.3.x' }
+
+sub include_dirs {
+    my ($self) = @_;
+    return canonpath(File::ShareDir::dist_dir('Alien-FLTK') . '/include');
+}
+
+sub library_path {
+    my ($self) = @_;
+    return canonpath(File::ShareDir::dist_dir('Alien-FLTK') . '/lib');
+}
+sub cflags   { Alien::FLTK::ConfigData->config('cflags') }
+sub cxxflags { Alien::FLTK::ConfigData->config('cxxflags') }
+
+sub ldflags {    # XXX - Cache this
+    my ($self, @args) = @_;
+    return Alien::FLTK::ConfigData->config(join '_', 'ldflags', sort @args);
+}
+1;
 
 =pod
 
@@ -162,8 +72,10 @@ branch of the FLTK GUI toolkit.
                            extra_compiler_flags => $AF->cxxflags()
     );
     my $EXE =
-        $CC->link_executable(objects            => $OBJ,
-                             extra_linker_flags => $AF->ldflags());
+        $CC->link_executable(
+         objects            => $OBJ,
+         extra_linker_flags => '-L' . $AF->library_path . ' ' . $AF->ldflags()
+        );
     print system('./' . $EXE) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $SRC, $OBJ, $EXE; }
 
@@ -216,13 +128,6 @@ arguments are:
 
 =over
 
-=item C<static>
-
-Returns flags to link against a static FLTK library.
-
-FLTK's license allows static linking, but L<Alien::FLTK|Alien::FLTK> does not
-build static libs. ...yet.
-
 =item C<gl>
 
 Include flags to use GL.
@@ -234,18 +139,6 @@ include OpenGL or MesaGL.>
 
 Include flags to use extra image formats (PNG, JPEG).
 
-=begin TODO
-
-=item C<glut>
-
-Include flags to use FLTK's glut compatibility layer.
-
-=item C<forms>
-
-Include flags to use FLTK's forms compatibility layer.
-
-=end TODO
-
 =back
 
 =head2 C<branch>
@@ -253,7 +146,7 @@ Include flags to use FLTK's forms compatibility layer.
     my $revision = $AF->branch( );
 
 Returns the SVN branch of the source L<Alien::FLTK|Alien::FLTK> was built
-with. For the C<2.0.x> branch of fltk, see L<Alien::FLTK|Alien::FLTK2>.
+with. This will always be C<1.3.x>.
 
 =head2 C<revision>
 
@@ -261,21 +154,6 @@ with. For the C<2.0.x> branch of fltk, see L<Alien::FLTK|Alien::FLTK2>.
 
 Returns the SVN revision number of the source L<Alien::FLTK|Alien::FLTK>
 was built with.
-
-=head2 C<capabilities>
-
-    my $caps = $AF->capabilities( );
-
-Returns a list of capabilities supported by your L<Alien::FLTK|Alien::FLTK>
-installation. This list can be handed directly to
-L<C<ldflags( )>|Alien::FLTK/ldflags>.
-
-=head2 C<config>
-
-    my $configuration = $AF->config( );
-
-Returns a hashref containing the raw configuration data collected during
-build. This would be helpful when reporting bugs, etc.
 
 =head1 Notes
 

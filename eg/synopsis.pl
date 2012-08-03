@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 {
+    use lib '../lib';
     use Alien::FLTK;
     use ExtUtils::CBuilder;
     my $AF  = Alien::FLTK->new();
@@ -28,8 +29,10 @@ use warnings;
                            extra_compiler_flags => $AF->cxxflags()
     );
     my $EXE =
-        $CC->link_executable(objects            => $OBJ,
-                             extra_linker_flags => $AF->ldflags());
+        $CC->link_executable(
+         objects            => $OBJ,
+         extra_linker_flags => '-L' . $AF->library_path . ' ' . $AF->ldflags()
+        );
     print system('./' . $EXE) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $SRC, $OBJ, $EXE; }
 }
@@ -44,7 +47,7 @@ CPAN ID: SANKO
 
 =head1 License and Legal
 
-Copyright (C) 2009 by Sanko Robinson E<lt>sanko@cpan.orgE<gt>
+Copyright (C) 2009-2012 by Sanko Robinson E<lt>sanko@cpan.orgE<gt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of The Artistic License 2.0. See the F<LICENSE> file included with
