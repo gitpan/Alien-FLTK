@@ -147,6 +147,8 @@ sub _extract_snapshot {
     my ($s, $where, $dest) = @_;
     require Archive::Extract;
     print 'extracting snapshot... ';
+    local $Archive::Extract::WARN = 0;
+    local $Archive::Extract::PREFER_BIN = 1;
     my $ae = Archive::Extract->new(archive => $where);
     if ($ae->extract(to => $dest)) {
         printf "okay. %d bytes, %d files\n", scalar $ae->files,
@@ -170,7 +172,8 @@ sub _configure {    # expects to be in the top of the extracted directory
     );
     for my $flag (keys %flags) {
         my $_flags = `sh fltk-config $flags{$flag}`;
-        chomp $_flags for 1 .. 3;
+        chomp $_flags;
+	warn sprintf '%s => %s => %s', $flag, $flags{$flag}, $_flags;
         $s->config_data($flag, $_flags);
     }
     $ret;
@@ -179,7 +182,10 @@ sub _configure {    # expects to be in the top of the extracted directory
 sub _make {    # expects to be in the top of the extracted directory
     chdir 'src';
     use Config;
-    my $ret = system('gmake -n | sh') && system('make -n | sh');
+    my $ret = system (
+		$^O =~ m[win32]i ? 
+		'gmake -n | sh' : 
+		`which make`);
     chdir '..';
     return !$ret;
 }

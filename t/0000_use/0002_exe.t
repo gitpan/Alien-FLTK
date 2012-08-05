@@ -7,7 +7,8 @@ use lib qw[blib/lib];
 use Alien::FLTK;
 use ExtUtils::CBuilder;
 $|++;
-my $CC = ExtUtils::CBuilder->new(quiet => 1);
+my $CC = ExtUtils::CBuilder->new(quiet => 1, config =>
+                                   { cc => 'g++' });
 my $AF = Alien::FLTK->new();
 my ($FH, $SRC)
     = File::Temp->tempfile('alien_fltk_t0002_XXXX',

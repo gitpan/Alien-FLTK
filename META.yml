@@ -1,5 +1,5 @@
 ---
-abstract: Build and use the stable 1.3.x branch of the Fast Light Toolkit
+abstract: 'Build and use the stable 1.3.x branch of the Fast Light Toolkit'
 author:
   - 'Sanko Robinson <sanko@cpan.org> - http://sankorobinson.com/'
 build_requires:
@@ -10,7 +10,7 @@ build_requires:
 configure_requires:
   Module::Build: 0.4
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4001, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Module::Build version 0.4002, CPAN::Meta::Converter version 2.120921'
 license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -19,9 +19,9 @@ name: Alien-FLTK
 provides:
   Alien::FLTK:
     file: lib/Alien/FLTK.pm
-    version: v1.0.0
+    version: v1.0.1
 requires:
   File::ShareDir: 1.00
 resources:
   license: http://www.perlfoundation.org/artistic_license_2_0
-version: v1.0.0
+version: v1.0.1

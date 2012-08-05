@@ -5,7 +5,8 @@ use warnings;
     use Alien::FLTK;
     use ExtUtils::CBuilder;
     my $AF  = Alien::FLTK->new();
-    my $CC  = ExtUtils::CBuilder->new();
+    my $CC  = ExtUtils::CBuilder->new(config =>
+                                   { cc => 'g++' });
     my $SRC = 'hello_world.cxx';
     open(my $FH, '>', $SRC) || die '...';
     syswrite($FH, <<'') || die '...'; close $FH;
@@ -23,15 +24,19 @@ use warnings;
         return Fl::run();
     }
 
+#g++ -I. -I/usr/include/freetype2 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_THREAD_SAFE -D_REENTRANT -o 'synopsis' 'synopsis.cxx' ./lib/libfltk.a -lXext -lpthread -ldl -lm -lX11
+
     my $OBJ = $CC->compile('C++'                => 1,
                            source               => $SRC,
                            include_dirs         => [$AF->include_dirs()],
                            extra_compiler_flags => $AF->cxxflags()
     );
+    warn $AF->ldflags;
+    warn $AF->library_path();
     my $EXE =
         $CC->link_executable(
          objects            => $OBJ,
-         extra_linker_flags => '-L' . $AF->library_path . ' ' . $AF->ldflags()
+         extra_linker_flags => '-L' . $AF->library_path() . ' ' . $AF->ldflags()
         );
     print system('./' . $EXE) ? 'Aww...' : 'Yay!';
     END { unlink grep defined, $SRC, $OBJ, $EXE; }
