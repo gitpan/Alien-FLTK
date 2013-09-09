@@ -90,18 +90,6 @@ Methods
     "images"
         Include flags to use extra image formats (PNG, JPEG).
 
-  "branch"
-        my $revision = $AF->branch( );
-
-    Returns the SVN branch of the source Alien::FLTK was built with. This
-    will always be "1.3.x".
-
-  "revision"
-        my $revision = $AF->revision( );
-
-    Returns the SVN revision number of the source Alien::FLTK was built
-    with.
-
 Notes
   Requirements
     Prerequisites differ by system...

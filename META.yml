@@ -4,24 +4,56 @@ author:
   - 'Sanko Robinson <sanko@cpan.org> - http://sankorobinson.com/'
 build_requires:
   Archive::Extract: 0
-  Config: 0
-  Digest::MD5: 0
-  File::Fetch: 0
+  File::Copy: 0
+  File::Copy::Recursive: 0
+  File::pushd: 0
+  HTTP::Tiny: 0
+  Test::More: 0.98
 configure_requires:
-  Module::Build: 0.4
-dynamic_config: 1
-generated_by: 'Module::Build version 0.4002, CPAN::Meta::Converter version 2.120921'
+  Archive::Extract: 0
+  CPAN::Meta: 0
+  Exporter: 5.57
+  ExtUtils::CBuilder: 0
+  ExtUtils::Config: 0.003
+  ExtUtils::Helpers: 0.020
+  ExtUtils::Install: 0
+  ExtUtils::InstallPaths: 0.002
+  ExtUtils::ParseXS: 0
+  File::Basename: 0
+  File::Copy: 0
+  File::Copy::Recursive: 0
+  File::Find: 0
+  File::Path: 0
+  File::Spec::Functions: 0
+  File::pushd: 0
+  Getopt::Long: 0
+  HTTP::Tiny: 0
+  JSON::PP: 2
+  Pod::Man: 0
+  TAP::Harness: 0
+dynamic_config: 0
+generated_by: 'Dist::Milla version v1.0.4, Dist::Zilla version 4.300038, CPAN::Meta::Converter version 2.132510'
 license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Alien-FLTK
-provides:
-  Alien::FLTK:
-    file: lib/Alien/FLTK.pm
-    version: v1.0.1
+no_index:
+  directory:
+    - t
+    - xt
+    - inc
+    - share
+    - eg
+    - examples
 requires:
-  File::ShareDir: 1.00
+  File::ShareDir: 0
+  File::Slurp: 0
+  File::Spec::Functions: 0
+  JSON::PP: 2
+  perl: 5.008001
 resources:
-  license: http://www.perlfoundation.org/artistic_license_2_0
-version: v1.0.1
+  bugtracker: https://github.com/sanko/alien-fltk/issues
+  homepage: https://github.com/sanko/alien-fltk
+  repository: https://github.com/sanko/alien-fltk.git
+version: v1.3.0

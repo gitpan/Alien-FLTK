@@ -1,34 +1,42 @@
 package Alien::FLTK;
-{ $Alien::FLTK::VERSION = 'v1.0.1'; }
+{ $Alien::FLTK::VERSION = 'v1.3.0'; }
 use strict;
 use warnings;
-use File::ShareDir;
-use File::Spec::Functions qw[catdir rel2abs canonpath];
+use File::ShareDir qw[dist_dir];
+use File::Spec::Functions qw[catdir canonpath];
+use JSON::PP 2 qw[decode_json];
+use File::Slurp qw[read_file];
 use lib '../../blib/lib', '../blib/lib', 'blib/lib', 'lib';
 
 sub new {
     my ($class, $overrides) = @_;    # XXX - overrides are unsupported
-    require Alien::FLTK::ConfigData;
-    return bless \{}, shift;
+    return
+        bless decode_json(
+         read_file(
+             canonpath(
+                 catdir(dist_dir('Alien-FLTK'), 'config.json')
+             )
+         )
+        ),
+        shift;
 }
-sub revision { Alien::FLTK::ConfigData->config('revision') }
-sub branch   { return '1.3.x' }
 
 sub include_dirs {
     my ($self) = @_;
-    return canonpath(File::ShareDir::dist_dir('Alien-FLTK') . '/include');
+    return canonpath(
+                   catdir(dist_dir('Alien-FLTK'), 'include'));
 }
 
 sub library_path {
     my ($self) = @_;
-    return canonpath(File::ShareDir::dist_dir('Alien-FLTK') . '/lib');
+    return canonpath(catdir(dist_dir('Alien-FLTK'), 'lib'));
 }
-sub cflags   { Alien::FLTK::ConfigData->config('cflags') }
-sub cxxflags { Alien::FLTK::ConfigData->config('cxxflags') }
+sub cflags   { +shift->{cflags} }
+sub cxxflags { +shift->{cxxflags} }
 
-sub ldflags {    # XXX - Cache this
+sub ldflags {
     my ($self, @args) = @_;
-    return Alien::FLTK::ConfigData->config(join '_', 'ldflags', sort @args);
+    return +shift->{join '_', 'ldflags', sort @args};
 }
 1;
 
@@ -140,20 +148,6 @@ include OpenGL or MesaGL.>
 Include flags to use extra image formats (PNG, JPEG).
 
 =back
-
-=head2 C<branch>
-
-    my $revision = $AF->branch( );
-
-Returns the SVN branch of the source L<Alien::FLTK|Alien::FLTK> was built
-with. This will always be C<1.3.x>.
-
-=head2 C<revision>
-
-    my $revision = $AF->revision( );
-
-Returns the SVN revision number of the source L<Alien::FLTK|Alien::FLTK>
-was built with.
 
 =head1 Notes
 

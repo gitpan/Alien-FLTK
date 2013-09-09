@@ -1,12 +1,14 @@
-Build.PL
 Changes
-eg/synopsis.pl
-inc/Module/Build/FLTK.pm
-lib/Alien/FLTK.pm
 LICENSE
-MANIFEST			This list of files
+MANIFEST
 META.json
 META.yml
 README
-t/0000_use/0001_use.t
-t/0000_use/0002_exe.t
+cpanfile
+dist.ini
+examples/synopsis.pl
+inc/MBTFLTK.pm
+lib/Alien/FLTK.pm
+t/0001_use.t
+t/0002_exe.t
+t/release-pod-syntax.t
