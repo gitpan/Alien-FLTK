@@ -6,8 +6,12 @@ build_requires:
   Archive::Extract: 0
   File::Copy: 0
   File::Copy::Recursive: 0
+  File::ShareDir: 0
+  File::Slurp: 0
+  File::Spec::Functions: 0
   File::pushd: 0
   HTTP::Tiny: 0
+  JSON::PP: 2
   Test::More: 0.98
 configure_requires:
   Archive::Extract: 0
@@ -24,6 +28,8 @@ configure_requires:
   File::Copy::Recursive: 0
   File::Find: 0
   File::Path: 0
+  File::ShareDir: 0
+  File::Slurp: 0
   File::Spec::Functions: 0
   File::pushd: 0
   Getopt::Long: 0
@@ -56,4 +62,4 @@ resources:
   bugtracker: https://github.com/sanko/alien-fltk/issues
   homepage: https://github.com/sanko/alien-fltk
   repository: https://github.com/sanko/alien-fltk.git
-version: v1.3.0
+version: v1.3.1
