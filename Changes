@@ -1,6 +1,6 @@
 Revision history for Perl extension Alien-FLTK
 
-v1.3.1  2013-09-11 13:19:34 EDT
+v1.3.2  2013-09-21 13:27:14 EDT
 
     - Resolve missing prereq (I hope)
 

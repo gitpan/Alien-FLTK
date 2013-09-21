@@ -62,4 +62,4 @@ resources:
   bugtracker: https://github.com/sanko/alien-fltk/issues
   homepage: https://github.com/sanko/alien-fltk
   repository: https://github.com/sanko/alien-fltk.git
-version: v1.3.1
+version: v1.3.2

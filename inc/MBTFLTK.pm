@@ -125,10 +125,12 @@ sub build_lib {
 
         # XXX - The following block is a mess!!!
         chdir 'src';
-            system q[gmake -ns > build.sh];
-            system q[sh build.sh];
-
-        chdir '..';
+		use Config;
+		system (
+			$^O =~ m[win32]i ?
+			'gmake -n | sh' :
+			`which make`);
+		chdir '..';
         my $archdir = catdir($cwd, qw[share]);
         mkpath($archdir, $options->{verbose}, oct '755') unless -d $archdir;
         # XXX - Copy FL  => shared dir
