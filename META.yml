@@ -16,6 +16,7 @@ build_requires:
 configure_requires:
   Archive::Extract: 0
   CPAN::Meta: 0
+  CPAN::Meta::Prereqs: 0
   Exporter: 5.57
   ExtUtils::CBuilder: 0
   ExtUtils::Config: 0.003
@@ -35,10 +36,11 @@ configure_requires:
   Getopt::Long: 0
   HTTP::Tiny: 0
   JSON::PP: 2
+  Module::Build: 0.38
   Pod::Man: 0
   TAP::Harness: 0
 dynamic_config: 0
-generated_by: 'Dist::Milla version v1.0.4, Dist::Zilla version 4.300038, CPAN::Meta::Converter version 2.132510'
+generated_by: 'Minilla/v0.6.5, CPAN::Meta::Converter version 2.132510'
 license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -52,6 +54,7 @@ no_index:
     - share
     - eg
     - examples
+    - author
 requires:
   File::ShareDir: 0
   File::Slurp: 0
@@ -61,5 +64,5 @@ requires:
 resources:
   bugtracker: https://github.com/sanko/alien-fltk/issues
   homepage: https://github.com/sanko/alien-fltk
-  repository: https://github.com/sanko/alien-fltk.git
-version: v1.3.2
+  repository: git://github.com/sanko/alien-fltk.git
+version: v1.3.3

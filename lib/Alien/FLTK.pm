@@ -1,5 +1,5 @@
 package Alien::FLTK;
-{ $Alien::FLTK::VERSION = 'v1.3.2'; }
+{ $Alien::FLTK::VERSION = 'v1.3.3'; }
 use strict;
 use warnings;
 use File::ShareDir qw[dist_dir];

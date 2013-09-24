@@ -1,4 +1,5 @@
 package MBTFLTK;
+use lib './lib';
 use strict;
 use warnings;
 use Exporter 5.57 'import';
@@ -175,6 +176,42 @@ my %actions = (
 			manify($_, catfile('blib', 'bindoc', man1_pagename($_)), $opt{config}->get('man1ext'), \%opt) for keys %scripts;
 			manify($_, catfile('blib', 'libdoc', man3_pagename($_)), $opt{config}->get('man3ext'), \%opt) for keys %modules;
 		}
+	},
+	dist => sub {
+		my $meta = get_meta();
+		my $name = $meta->name;
+		require Alien::FLTK;
+		$meta->{version} = $Alien::FLTK::VERSION;
+		my $version = $meta->version;
+     	printf "Creating new dist for '%s' version '%s'\n", $name, $version;
+
+		#
+		$meta->save("META.json", {version => 2});
+		$meta->save("META.yml",  {version => 1.4});
+
+		#
+		require Pod::Readme;
+		Pod::Readme->new( readme_type => 'text' )->parse_from_file( 'lib/Alien/FLTK.pm', 'README' );
+
+		# XXX - Use a distdir
+		require Archive::Tar;
+		open my $fh, 'MANIFEST';
+		my $files = [split m[\n], do { local $/; <$fh> }];
+
+		# Archive::Tar versions >= 1.09 use the following to enable a compatibility
+		# hack so that the resulting archive is compatible with older clients.
+		# If no file path is 100 chars or longer, we disable the prefix field
+		# for maximum compatibility.  If there are any long file paths then we
+		# need the prefix field after all.
+		$Archive::Tar::DO_NOT_USE_PREFIX =
+		(grep { length($_) >= 100 } @$files) ? 0 : 1;
+
+		my $tar   = Archive::Tar->new;
+		$tar->add_files(@$files);
+		for my $f ($tar->get_files) {
+			$f->mode($f->mode & ~022); # chmod go-w
+		}
+		$tar->write("$name-$version.tar.gz", 1);
 	},
 	test => sub {
 		my %opt = @_;
